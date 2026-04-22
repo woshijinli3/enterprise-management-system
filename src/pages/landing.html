@@ -8,31 +8,29 @@
     <link rel="stylesheet" href="../assets/css/pages/landing.css">
     <!--  link：引入 CSS 样式表，也可用于引入网站图标、预加载资源等-->
     <!--  relationship（关系）：明确当前 HTML 文档与被链接文件的关系-->
-    <!--  href="":指定要引入的 CSS 文件的路径-->
+    <!--  href="stylesheet":指定要引入的 CSS 文件的路径-->
 </head>
 <body class="landing-page">
-<!-- 导航栏区域（finished） -->
+
+<!-- Ⅰ 导航栏总容器区域 -->
 <header id="navbar">
+    <!--1.顶部主导航内容-->
     <div class="navbar-container container">
-        <!--logo(a；超链接）-->
+        <!--① logo 品牌区-->
         <a href="#hero" class="navbar-brand">
-            <!-- href="#" = 假链接、占位用，点击回顶部-->
             <img src="../assets/images/logo.png" alt="小麦科技">
             <span>小麦科技</span>
         </a>
-
-        <!--导航栏（nav：专用导航盒子）-->
+        <!-- ② 导航链接栏-->
         <nav class="navbar-nav">
             <!--class="navbar-nav"：导航链接横排（默认为竖排）-->
             <a href="#hero">首页</a>
-           
             <!-- href="#products"：点击 滚到页面指定区域products 下面类似-->
-          
             <a href="#about">关于</a>
-            <a href="#technology">技术</a> 
-            <!--href="#"：点击 滚到页面顶部-->
+            <a href="#technology">技术</a>
             <a href="#products">产品</a>
-          </nav>
+        </nav>
+        <!-- ③ 登录注册按钮区-->
         <div class="navbar-actions">
             <!--navbar-actions：操作按钮-->
             <a href="login.html" class="btn btn-outline">登录</a>
@@ -40,19 +38,23 @@
             <a href="register.html" class="btn btn-primary">注册</a>
             <!--class样式：主要按钮样式，一般颜色更突出-->
         </div>
-        <!-- 移动端菜单按钮 -->
+        <!-- ④ 移动端菜单按钮 -->
         <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <!--按钮上显示的图标，表示菜单-->
             ☰
         </button>
     </div>
-    <!-- 移动端菜单 -->
+
+    <!-- 2.移动端展开菜单 -->
     <div class="mobile-menu" id="mobileMenu">
+        <!-- ① 移动端：导航区-->
         <div class="mobile-menu-nav">
             <a href="#hero">首页</a>
             <a href="#products">产品</a>
             <a href="#technology">技术</a>
             <a href="#about">关于</a>
         </div>
+        <!-- ② 移动端：操作按钮（登录+注册） -->
         <div class="mobile-menu-actions">
             <a href="login.html" class="btn btn-outline">登录</a>
             <a href="register.html" class="btn btn-primary">注册</a>
@@ -60,7 +62,7 @@
     </div>
 </header>
 
-<!-- Hero首屏区域 -->
+<!-- Ⅱ Hero首屏区域 -->
 <section id="hero">
     <div class="hero-container container">
         <h1 class="hero-title">北京有小米，南京有小麦</h1>
@@ -72,11 +74,14 @@
     </div>
 </section>
 
-<!-- 公司介绍区域 -->
+<!-- Ⅲ 公司介绍区域 -->
 <section id="about" class="landing-section">
     <div class="container">
+        <!--1.标题区-->
         <h2 class="section-title">关于小麦</h2>
+        <!--2.副标题区-->
         <p class="section-subtitle">致力于用科技改变生活，让智能触手可及。</p>
+        <!--3.统计卡片区-->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-number">500+</div>
@@ -94,22 +99,28 @@
     </div>
 </section>
 
-<!-- 技术展示区域 -->
+<!-- Ⅳ 技术展示区域 -->
 <section id="technology" class="landing-section">
     <div class="container">
+        <!--1.标题区-->
         <h2 class="section-title">核心技术</h2>
+        <!--2.副标题区-->
         <p class="section-subtitle">持续投入研发，打造领先的技术能力。</p>
+        <!--3.技术展示卡区-->
         <div class="tech-grid">
+            <!--① AI智能引擎-->
             <div class="tech-card">
                 <img src="../assets/images/tech/tech-1.png" alt="AI智能引擎" loading="lazy">
                 <h3>AI智能引擎</h3>
                 <p>机器学习与自然语言处理</p>
             </div>
+            <!--② 云计算平台-->
             <div class="tech-card">
                 <img src="../assets/images/tech/tech-2.png" alt="云计算平台" loading="lazy">
                 <h3>云计算平台</h3>
                 <p>分布式架构，弹性扩展</p>
             </div>
+            <!--③ 大数据分析-->
             <div class="tech-card">
                 <img src="../assets/images/tech/tech-3.png" alt="大数据分析" loading="lazy">
                 <h3>大数据分析</h3>
@@ -119,43 +130,46 @@
     </div>
 </section>
 
-<!-- 产品服务区域（finished） -->
+<!-- Ⅴ 产品服务区域 -->
 <section id="products" class="landing-section">
     <div class="container">
+        <!--1.标题区-->
         <h2 class="section-title">产品服务</h2>
+        <!--2.副标题区-->
         <p class="section-subtitle">致力于为客户群体提供最佳产品服务</p>
+        <!--3.产品展示卡区-->
         <div class="products-grid">
-            <!-- 小麦手机 -->
+            <!-- ① 小麦手机 -->
             <div class="product-card">
                 <img src="../assets/images/products/product-1.jpg" alt="小麦最新手机" loading="lazy">
                 <h3>小麦手机</h3>
                 <p>智能高效的好伙伴</p>
             </div>
-            <!-- 小麦平板 -->
+            <!-- ② 小麦平板 -->
             <div class="product-card">
                 <img src="../assets/images/products/product-2.jpg" alt="小麦最新平板" loading="lazy">
                 <h3>小麦平板</h3>
                 <p>追剧游戏的最佳搭档</p>
             </div>
-            <!-- 小麦笔记本电脑 -->
+            <!-- ③ 小麦笔记本电脑 -->
             <div class="product-card">
                 <img src="../assets/images/products/product-3.jpg" alt="小麦最新笔记本电脑" loading="lazy">
                 <h3>小麦笔记本电脑</h3>
                 <p>轻便能抗 学习工作的好战友</p>
             </div>
-            <!-- 小麦台式电脑 -->
+            <!-- ④ 小麦台式电脑 -->
             <div class="product-card">
                 <img src="../assets/images/products/product-4.jpg" alt="小麦最新台式电脑" loading="lazy">
                 <h3>小麦最新台式电脑</h3>
                 <p>性能一绝的游戏办公搭子</p>
             </div>
-            <!-- 小麦手表 -->
+            <!-- ⑤ 小麦手表 -->
             <div class="product-card">
                 <img src="../assets/images/products/product-5.jpg" alt="小麦最新手表" loading="lazy">
                 <h3>小麦手表</h3>
                 <p>身心健康的守护者</p>
             </div>
-            <!-- 小麦扫地机器人 -->
+            <!-- ⑥ 小麦扫地机器人 -->
             <div class="product-card">
                 <img src="../assets/images/products/product-6.jpg" alt="小麦最新扫地机器人" loading="lazy">
                 <h3>小麦扫地机器人</h3>
@@ -165,37 +179,48 @@
     </div>
 </section>
 
-<!-- 合作伙伴区域（finished） -->
+<!-- Ⅵ 合作伙伴区域 -->
 <section id="partners" class="landing-section">
-    <!-- 合作伙伴的logo照片 -->
     <div class="container">
+        <!--1.标题区-->
         <h2 class="section-title">合作伙伴</h2>
+        <!--2.副标题区-->
         <p class="section-subtitle">与全球领先企业携手，共建智能生态。</p>
+        <!--3.合作伙伴logo区-->
         <div class="partners-grid">
+            <!--① 阿里云-->
             <div class="partner-logo">
                 <img src="../assets/images/partners/alibabacloud-color.svg" alt="阿里云" loading="lazy">
             </div>
+            <!--② 阿里巴巴-->
             <div class="partner-logo">
                 <img src="../assets/images/partners/alibabadotcom-color.svg" alt="阿里巴巴" loading="lazy">
             </div>
+            <!--③ 支付宝-->
             <div class="partner-logo">
                 <img src="../assets/images/partners/alipay-color.svg" alt="支付宝" loading="lazy">
             </div>
+            <!--④ 小米-->
             <div class="partner-logo">
                 <img src="../assets/images/partners/xiaomi-color.svg" alt="小米" loading="lazy">
             </div>
+            <!--⑤ 字节跳动-->
             <div class="partner-logo">
                 <img src="../assets/images/partners/tiktok-color.svg" alt="字节跳动" loading="lazy">
             </div>
+            <!--⑥ 英伟达-->
             <div class="partner-logo">
                 <img src="../assets/images/partners/nvidia-color.svg" alt="英伟达" loading="lazy">
             </div>
+            <!--⑦ 特拉斯-->
             <div class="partner-logo">
                 <img src="../assets/images/partners/tesla-color.svg" alt="特斯拉" loading="lazy">
             </div>
+            <!--⑧ Meta-->
             <div class="partner-logo">
                 <img src="../assets/images/partners/facebook-color.svg" alt="Meta" loading="lazy">
             </div>
+            <!--⑨ Hugging Face-->
             <div class="partner-logo">
                 <img src="../assets/images/partners/huggingface-color.svg" alt="Hugging Face" loading="lazy">
             </div>
@@ -203,23 +228,28 @@
     </div>
 </section>
 
-<!-- 创始人团队区域（finished） -->
+<!-- Ⅶ 创始人团队区域 -->
 <section id="founders" class="landing-section">
     <div class="container">
+        <!--1.标题区-->
         <h2 class="section-title">认识小麦的掌舵人</h2>
+        <!--2.副标题区-->
         <p class="section-subtitle">由业界顶尖技术领袖和商业精英联手打造的未来科技。</p>
+        <!--3.创始人卡片-->
         <div class="founders-grid">
-            <!--姚依-->
+            <!--① 姚依-->
             <div class="founder-card">
                 <img src="../assets/images/founders/founder-1.jpg" alt="姚 依" class="founder-photo" loading="lazy">
                 <div class="image-placeholder text-sm">
+                    <!--image-placeholder：图片占位区域-->
+                    <!--text-sm：小字号文字-->
                 </div>
                 <h3>姚 依</h3>
                 <p class="founder-title">创始人兼首席执行官 (CEO)</p>
                 <p class="founder-bio">
                     曾任顶级科技公司首席架构师，深造于前沿人工语言实验室，致力于打造真正触手可及的企业级智慧系统。</p>
             </div>
-            <!--凌清杨-->
+            <!--② 凌清杨-->
             <div class="founder-card">
                 <img src="../assets/images/founders/founder-2.jpg" alt="凌清杨"
                      class="founder-photo" loading="lazy">
@@ -230,7 +260,7 @@
                 <p class="founder-bio">
                     全球开源社区核心贡献者，主导过多项千万级并发架构设计。对云计算和边缘计算有极深的造诣。</p>
             </div>
-            <!--胡庭瑜-->
+            <!--③ 胡庭瑜-->
             <div class="founder-card">
                 <img src="../assets/images/founders/founder-3.jpg" alt="胡庭瑜"
                      class="founder-photo" loading="lazy">
@@ -241,7 +271,7 @@
                 <p class="founder-bio">
                     拥有十年以上互联网产品经验，擅长将复杂技术转化为用户友好的产品体验。对AI应用场景有独到见解。</p>
             </div>
-            <!--开俊涵-->
+            <!--④ 开俊涵-->
             <div class="founder-card">
                 <img src="../assets/images/founders/founder-4.jpg" alt="开俊涵"
                      class="founder-photo" loading="lazy">
@@ -256,11 +286,14 @@
     </div>
 </section>
 
-<!-- 行动号召区域 -->
+<!-- Ⅷ 行动号召区域 -->
 <section id="cta">
     <div class="container">
+        <!--1.标题区-->
         <h2 class="cta-title">加入小麦，共创未来</h2>
+        <!--2.副标题-->
         <p class="cta-subtitle">立即注册，开启您的智能之旅</p>
+        <!--3.行动号召（注册+登录）-->
         <div class="cta-actions">
             <a href="register.html" class="btn btn-white btn-lg">免费注册</a>
             <a href="login.html" class="btn btn-outline btn-lg">立即登录</a>
@@ -268,10 +301,12 @@
     </div>
 </section>
 
-<!-- 页脚区域(finished) -->
+<!-- Ⅸ 页脚区域  -->
 <footer id="footer">
     <div class="container">
+        <!--1.页脚主内容-->
         <div class="footer-content">
+            <!--① 品牌信息-->
             <div class="footer-brand">
                 <div class="footer-logo-container">
                     <img src="../assets/images/logo.png" alt="小麦科技" class="footer-logo">
@@ -279,15 +314,18 @@
                 </div>
                 <p>小麦科技，让科技触手可及。</p>
             </div>
+            <!--② 快速链接-->
             <div class="footer-links">
                 <a href="#about">关于我们</a>
                 <a href="#products">产品服务</a>
                 <a href="#">支持与联系</a>
             </div>
         </div>
+        <!--2.版权信息区-->
         <div class="footer-copyright">© 2026 小麦科技 All Rights Reserved.</div>
     </div>
 </footer>
+
 <script src="../assets/js/main.js"></script>
 </body>
 </html>
