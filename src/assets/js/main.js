@@ -107,6 +107,7 @@ function getRuntimeReadyCheck(key) {
     'utils-storage': () => typeof storage !== 'undefined',
     'utils-format': () => typeof formatDate === 'function' && typeof formatNumber === 'function',
     'utils-validate': () => typeof validateForm === 'function',
+    'utils-icon-map': () => typeof renderIcon === 'function',
     'core-module-loader': () => !!window.appScriptLoader,
     'core-router': () => !!window.appRouter,
     'core-shell': () => !!window.appShell,
@@ -131,7 +132,7 @@ function getRuntimeReadyCheck(key) {
  * 原因：HTML 只保留 main.js 单入口，基础工具必须由启动器统一装配。
  */
 async function loadUtilityRuntime(rootPath) {
-  const utilityScripts = ['dom', 'storage', 'format'];
+  const utilityScripts = ['dom', 'storage', 'format', 'icon-map'];
 
   for (const name of utilityScripts) {
     await loadRuntimeScript(rootPath + 'assets/js/utils/' + name + '.js', 'utils-' + name);

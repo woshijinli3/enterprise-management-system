@@ -21,7 +21,7 @@ purchaseSystem.renderers = (function(view) {
    * @returns {string} 星级 HTML。
    */
   function stars(rating) {
-    return '⭐'.repeat(rating) + '<span style="color:var(--color-text-secondary)">' + '☆'.repeat(5 - rating) + '</span>';
+    return '<i class="ti ti-star-filled" style="color:var(--color-warning)"></i>'.repeat(rating) + '<i class="ti ti-star" style="color:var(--color-text-disabled)"></i>'.repeat(5 - rating);
   }
 
   return {

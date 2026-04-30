@@ -23,7 +23,15 @@
       <div class="stats-grid" id="stats-grid"></div>
 
       <div class="card">
-        <div class="card-header"><div class="card-title">故障列表</div></div>
+        <div class="card-header">
+          <div class="card-title">故障列表</div>
+          <div class="toolbar-right">
+            <div class="search-box">
+              <span class="search-icon"><i class="ti ti-search"></i></span>
+              <input type="text" id="search-input" placeholder="搜索设备名称/故障描述">
+            </div>
+          </div>
+        </div>
         <div class="table-wrapper">
           <table class="table">
             <thead>
@@ -34,6 +42,59 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- 新增/编辑故障记录弹窗 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">报告故障</div>
+        <div class="modal-close" id="modal-close">✕</div>
+      </div>
+      <div class="modal-body">
+        <form id="fault-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">设备名称</label>
+              <input class="form-control" id="f-equipName" placeholder="请输入故障设备名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label">故障日期</label>
+              <input class="form-control" type="date" id="f-faultDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">故障描述</label>
+              <input class="form-control" id="f-description" placeholder="请输入故障描述">
+            </div>
+            <div class="form-group">
+              <label class="form-label">严重程度</label>
+              <select class="form-control" id="f-severity">
+                <option value="一般">一般</option>
+                <option value="严重">严重</option>
+                <option value="致命">致命</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">状态</label>
+              <select class="form-control" id="f-status">
+                <option value="待处理">待处理</option>
+                <option value="维修中">维修中</option>
+                <option value="已解决">已解决</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">处理人</label>
+              <input class="form-control" id="f-handler" placeholder="请输入处理人">
+            </div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
+      </div>
+    </div>
   </div>
 <script src="../../assets/js/main.js"></script>
 </body>

@@ -17,6 +17,7 @@
           <div class="page-title">考勤薪资</div>
           <div class="page-subtitle">2026年03月 考勤记录</div>
         </div>
+        <button class="btn btn-primary" id="add-btn">+ 新增考勤</button>
       </div>
 
       <div class="stats-grid" id="stats-grid"></div>
@@ -24,6 +25,12 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">考勤明细</div>
+          <div class="toolbar-right">
+            <div class="search-box">
+              <span class="search-icon"><i class="ti ti-search"></i></span>
+              <input type="text" id="search-input" placeholder="搜索工号/姓名">
+            </div>
+          </div>
         </div>
         <div class="table-wrapper">
           <table class="table">
@@ -37,6 +44,7 @@
                 <th>请假天数</th>
                 <th>加班时长</th>
                 <th>出勤率</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody id="attendance-tbody"></tbody>
@@ -45,6 +53,60 @@
       </div>
     </main>
   </div>
+
+  <!-- 新增/编辑考勤弹窗 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">新增考勤</div>
+        <div class="modal-close" id="modal-close">✕</div>
+      </div>
+      <div class="modal-body">
+        <form id="attendance-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">工号</label>
+              <input class="form-control" id="f-empId" placeholder="如 E001">
+            </div>
+            <div class="form-group">
+              <label class="form-label required">姓名</label>
+              <input class="form-control" id="f-empName" placeholder="请输入姓名">
+            </div>
+            <div class="form-group">
+              <label class="form-label">月份</label>
+              <input class="form-control" type="month" id="f-month">
+            </div>
+            <div class="form-group">
+              <label class="form-label">应出勤天数</label>
+              <input class="form-control" type="number" id="f-workDays" value="22">
+            </div>
+            <div class="form-group">
+              <label class="form-label">实际出勤</label>
+              <input class="form-control" type="number" id="f-actualDays">
+            </div>
+            <div class="form-group">
+              <label class="form-label">迟到次数</label>
+              <input class="form-control" type="number" id="f-lateTimes" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">请假天数</label>
+              <input class="form-control" type="number" id="f-leaveDays" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">加班时长(h)</label>
+              <input class="form-control" type="number" id="f-overtimeHours" value="0">
+            </div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
+      </div>
+    </div>
+  </div>
+
 <script src="../../assets/js/main.js"></script>
 </body>
 </html>

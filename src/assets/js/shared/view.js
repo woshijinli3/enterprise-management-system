@@ -61,9 +61,10 @@ const EnterpriseView = (function() {
    * @returns {string} 统计卡片 HTML。
    */
   function renderStats(items) {
-    return items.map((item, index) => `
-      <div class="stat-card slide-up delay-${(index % 4) * 100}"><div class="stat-icon">${item.icon}</div><div class="stat-info"><div class="stat-value">${item.value}</div><div class="stat-label">${item.label}</div></div></div>
-    `).join('');
+    return items.map((item, index) => {
+      var iconHtml = typeof renderIcon === 'function' ? renderIcon(item.icon) : item.icon;
+      return '<div class="stat-card slide-up delay-' + ((index % 4) * 100) + '"><div class="stat-icon">' + iconHtml + '</div><div class="stat-info"><div class="stat-value">' + item.value + '</div><div class="stat-label">' + item.label + '</div></div></div>';
+    }).join('');
   }
 
   /**

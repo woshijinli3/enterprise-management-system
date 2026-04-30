@@ -1,4 +1,5 @@
-/* 头部占位层：组件异步注入前固定占住顶部空间，z-index 与真实头部一致防止内容上跳。 */
+/* 1. 后台系统 Header 区域*/
+/* ① 头部占位层：组件异步注入前固定占住顶部空间，z-index 与真实头部一致防止内容上跳。 */
 #header-placeholder:empty {
   position: fixed;
   top: 0;
@@ -11,7 +12,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* 后台系统头部：固定在视口顶部，业务页面通过 --header-height 预留内容区域。 */
+/* ② 后台系统头部：固定在视口顶部，业务页面通过  */
 .header {
   position: fixed;
   top: 0;
@@ -22,7 +23,7 @@
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; /*两端对齐*/
   padding: 0 var(--spacing-lg);
   z-index: 100;
   box-shadow: var(--shadow-sm);
@@ -33,11 +34,11 @@
   animation: componentFadeIn 0.3s ease-out forwards;
 }
 
-/* 后台头部品牌与用户区：承载 logo、系统名、用户头像和退出入口。 */
+/* ③ 后台头部品牌与用户区：承载 logo、系统名、用户头像和退出入口。 */
 .header-logo {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-sm); /*横向间距*/
 }
 
 .header-logo img {
@@ -79,7 +80,7 @@
   font-weight: 600;
 }
 
-/* 后台移动端菜单按钮：桌面端隐藏，移动端通过 active 态变成关闭图标。 */
+/* ④ 后台移动端菜单按钮：桌面端隐藏，移动端通过 active 态变成关闭图标。 */
 .hamburger-btn {
   display: none;
   flex-direction: column;
@@ -102,7 +103,7 @@
   transition: all 0.3s ease;
 }
 
-/* 后台移动端头部：显示汉堡按钮，收起品牌名和用户名给操作区留空间。 */
+/* ⑤ 后台移动端头部：显示汉堡按钮，收起品牌名和用户名给操作区留空间。 */
 @media (max-width: 768px) {
   .hamburger-btn {
     display: flex;
@@ -137,7 +138,10 @@
   }
 }
 
-/* 落地页导航栏：独立于后台 header，固定顶部并支持滚动后的毛玻璃状态。 */
+
+
+/* 2.落地页导航栏：独立于后台 header，固定顶部并支持滚动*/
+/* ① 固定顶部*/
 #navbar {
   position: fixed;
   top: 0;
@@ -150,7 +154,7 @@
   transition: all 0.3s ease;
 }
 
-/* 落地页导航容器：内容宽度由 HTML 中的 container 控制，导航内部保持水平分布。 */
+/* ② 落地页导航容器：内容宽度由 HTML 中的 container 控制，导航内部保持水平分布。 */
 .navbar-container {
   display: flex;
   justify-content: space-between;
@@ -158,7 +162,7 @@
   height: 60px;
 }
 
-/* 落地页品牌区：logo 和品牌名作为首页锚点，hover 使用轻微缩放强调可点击。 */
+/* ③ 落地页品牌区：logo 和品牌名作为首页锚点，hover 使用轻微缩放强调可点击。 */
 .navbar-brand {
   display: flex;
   align-items: center;
@@ -178,7 +182,7 @@
   height: 36px;
 }
 
-/* 桌面导航链接：使用伪元素生成下划线，避免在 HTML 中增加装饰节点。 */
+/* ④ 桌面导航链接：使用伪元素生成下划线，避免在 HTML 中增加装饰节点。 */
 .navbar-nav {
   display: flex;
   gap: 32px;
@@ -212,7 +216,7 @@
   width: 100%;
 }
 
-/* 落地页导航操作区：登录注册按钮在导航内固定尺寸，避免文案长短造成抖动。 */
+/* ⑤ 落地页导航操作区：登录注册按钮在导航内固定尺寸，避免文案长短造成抖动。 */
 .navbar-actions {
   display: flex;
   gap: 16px;
@@ -262,8 +266,7 @@
   transform: translateY(-2px);
 }
 
-
-/* 落地页移动菜单按钮：窄屏隐藏桌面导航后显示。 */
+/* ⑥ 落地页移动菜单按钮：窄屏隐藏桌面导航后显示。 */
 .mobile-menu-btn {
   display: none;
   background: none;
@@ -330,7 +333,7 @@
   width: 100%;
 }
 
-/* 落地页移动菜单入场动画：只服务导航下拉，不影响 base/animations 的通用 slideDown。 */
+/* ⑦ 落地页移动菜单入场动画：只服务导航下拉，不影响 base/animations 的通用 slideDown。 */
 @keyframes slideDown {
   from {
     opacity: 0;

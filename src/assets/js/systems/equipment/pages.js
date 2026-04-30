@@ -54,7 +54,7 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
         <td><span class="badge ${renderers.equipmentStatusMap[item.status] || 'badge-default'}">${item.status}</span></td>
         <td>
           <div class="table-actions">
-            <button class="btn btn-outline btn-sm" data-action="detail" data-id="${item.id}">详情</button>
+            <button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button>
             <button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button>
           </div>
         </td>
@@ -73,7 +73,12 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.technician}</td>
         <td>${formatMoney(item.cost)}</td>
         <td><span class="badge ${renderers.maintenanceStatusMap[item.status] || 'badge-default'}">${item.status}</span></td>
-        <td><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></td>
+        <td>
+          <div class="table-actions">
+            <button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button>
+            <button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button>
+          </div>
+        </td>
       </tr>
     `;
   }
@@ -89,7 +94,12 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
         <td><span class="badge ${renderers.severityMap[item.severity] || 'badge-default'}">${item.severity}</span></td>
         <td>${item.handler}</td>
         <td><span class="badge ${renderers.faultStatusMap[item.status] || 'badge-default'}">${item.status}</span></td>
-        <td><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></td>
+        <td>
+          <div class="table-actions">
+            <button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button>
+            <button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button>
+          </div>
+        </td>
       </tr>
     `;
   }
@@ -101,10 +111,10 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
 
     const data = store.sync();
     renderers.stats([
-      { icon: '🏭', value: data.equipment.length, label: '设备总数' },
-      { icon: '✅', value: data.equipment.filter((item) => item.status === '运行中').length, label: '运行中' },
-      { icon: '🔧', value: data.equipment.filter((item) => item.status === '维修中').length, label: '维修中' },
-      { icon: '⚠️', value: data.faults.filter((item) => item.status !== '已解决').length, label: '待处理故障' }
+      { icon: 'building-factory', value: data.equipment.length, label: '设备总数' },
+      { icon: 'circle-check', value: data.equipment.filter((item) => item.status === '运行中').length, label: '运行中' },
+      { icon: 'wrench', value: data.equipment.filter((item) => item.status === '维修中').length, label: '维修中' },
+      { icon: 'alert-triangle', value: data.faults.filter((item) => item.status !== '已解决').length, label: '待处理故障' }
     ]);
 
     view.renderRows(tbody, data.equipment, renderEquipmentSummaryRow, { colspan: 6, text: '暂无设备' });
@@ -117,141 +127,161 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('monitor-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    const list = store.sync().equipment;
-    renderers.stats([
-      { icon: '🏭', value: list.length, label: '设备总数' },
-      { icon: '✅', value: list.filter((item) => item.status === '运行中').length, label: '运行中' },
-      { icon: '🔧', value: list.filter((item) => item.status === '维修中').length, label: '维修中' },
-      { icon: '🛑', value: list.filter((item) => item.status === '停机').length, label: '停机' }
-    ]);
+    function render() {
+      const list = store.sync().equipment;
+      const keyword = view.getTrimmedValue('search-input');
+      const filtered = keyword ? view.filterByKeyword(list, keyword, ['name', 'model', 'location']) : list;
 
-    view.renderRows(tbody, list, renderEquipmentMonitorRow, { colspan: 8, text: '暂无设备监控数据' });
+      renderers.stats([
+        { icon: 'building-factory', value: list.length, label: '设备总数' },
+        { icon: 'circle-check', value: list.filter((item) => item.status === '运行中').length, label: '运行中' },
+        { icon: 'wrench', value: list.filter((item) => item.status === '维修中').length, label: '维修中' },
+        { icon: 'player-stop', value: list.filter((item) => item.status === '停机').length, label: '停机' }
+      ]);
+
+      view.renderRows(tbody, filtered, renderEquipmentMonitorRow, { colspan: 8, text: '暂无设备监控数据' });
+      initEquipStatusChart(list);
+    }
+
+    on(document.getElementById('search-input'), 'input', render);
 
     tbody.dataset.bound = '1';
+    render();
   }
 
   /**
-   * 关闭设备档案详情弹窗。
+   * 绘制设备状态分布饼图。
+   * @param {Array} list 设备列表。
    * @returns {void}
    *
-   * 原因：详情弹窗只负责展示设备信息，关闭时统一移除遮罩激活类即可。
+   * 原因：监控页需要直观展示各状态设备数量占比，使用 EnterpriseCharts.pieChart 绘制环形图。
    */
-  function closeInfoModal() {
-    removeClass(document.getElementById('modal-overlay'), 'active');
-  }
+  function initEquipStatusChart(list) {
+    const canvas = document.getElementById('equip-status-chart');
+    if (!canvas) return;
 
-  /**
-   * 渲染设备档案详情 HTML。
-   * @param {Object} item 设备档案数据。
-   * @returns {string} 设备档案详情 HTML。
-   *
-   * 原因：详情字段较多，拆出模板后打开弹窗流程只处理 DOM 状态。
-   */
-  function renderEquipmentDetail(item) {
-    return `
-      <div class="form-row">
-        <div class="form-group"><div class="form-label">设备编号</div><div>${item.id}</div></div>
-        <div class="form-group"><div class="form-label">设备名称</div><div>${item.name}</div></div>
-        <div class="form-group"><div class="form-label">型号</div><div>${item.model}</div></div>
-        <div class="form-group"><div class="form-label">位置</div><div>${item.location}</div></div>
-        <div class="form-group"><div class="form-label">购入日期</div><div>${item.purchaseDate}</div></div>
-        <div class="form-group"><div class="form-label">上次维护</div><div>${item.lastMaintain}</div></div>
-        <div class="form-group"><div class="form-label">下次维护</div><div>${item.nextMaintain}</div></div>
-        <div class="form-group"><div class="form-label">状态</div><div><span class="badge ${renderers.equipmentStatusMap[item.status] || 'badge-default'}">${item.status}</span></div></div>
-      </div>
-    `;
-  }
-
-  /**
-   * 打开设备档案详情弹窗。
-   * @param {string} id 设备编号。
-   * @returns {void}
-   *
-   * 原因：详情弹窗依赖当前设备数据和 modal DOM，集中处理空数据兜底。
-   */
-  function showInfoDetail(id) {
-    const item = store.sync().equipment.find((equipment) => equipment.id === id);
-    const title = document.getElementById('modal-title');
-    const body = document.getElementById('modal-body');
-    if (!item || !title || !body) return;
-
-    title.textContent = item.name + ' 设备档案';
-    body.innerHTML = renderEquipmentDetail(item);
-    addClass(document.getElementById('modal-overlay'), 'active');
-  }
-
-  /**
-   * 刷新设备档案页列表。
-   * @param {HTMLElement} tbody 设备档案表格 body。
-   * @returns {void}
-   *
-   * 原因：搜索、新增和删除后都需要按同一规则重新渲染设备档案列表。
-   */
-  function refreshInfoPage(tbody) {
-    const keyword = view.getTrimmedValue('search-input');
-    const list = view.filterByKeyword(store.sync().equipment, keyword, ['name', 'model']);
-    view.renderRows(tbody, list, renderEquipmentInfoRow, { colspan: 9, text: '暂无设备档案' });
-  }
-
-  /**
-   * 新增设备档案并刷新列表。
-   * @param {HTMLElement} tbody 设备档案表格 body。
-   * @returns {void}
-   *
-   * 原因：新增 prompt 字段和刷新动作属于同一用户操作，拆出后事件绑定更清晰。
-   */
-  function addInfoEquipment(tbody) {
-    const payload = view.promptFields([
-      { name: 'name', label: '设备名称', required: true },
-      { name: 'model', label: '设备型号', defaultValue: 'NEW-100' },
-      { name: 'location', label: '设备位置', defaultValue: '新车间' },
-      { name: 'status', label: '设备状态（运行中/维修中/停机）', defaultValue: '运行中' }
-    ]);
-    if (!payload) return;
-
-    actions.createEquipment(payload);
-    refreshInfoPage(tbody);
-  }
-
-  /**
-   * 绑定设备档案页搜索、新增、详情和删除事件。
-   * @param {HTMLElement} tbody 设备档案表格 body。
-   * @returns {void}
-   *
-   * 原因：事件绑定集中后，initInfoPage 只负责页面进入条件和首次刷新。
-   */
-  function bindInfoEvents(tbody) {
-    view.bindModalClose(closeInfoModal);
-    on(document.getElementById('search-input'), 'input', () => refreshInfoPage(tbody));
-    on(document.getElementById('add-btn'), 'click', () => addInfoEquipment(tbody));
-
-    // 打开当前行的设备档案详情。
-    function handleDetailClick() {
-      showInfoDetail(this.dataset.id);
+    if (!list.length) {
+      const parent = canvas.parentElement;
+      if (parent) parent.innerHTML = '<div style="text-align:center;color:var(--color-text-secondary);padding:60px 0">暂无设备数据</div>';
+      return;
     }
 
-    // 删除当前行的设备档案。
-    function handleEquipmentDelete() {
-      view.confirmDelete('确认删除该设备？', () => actions.deleteEquipment(this.dataset.id), () => refreshInfoPage(tbody));
+    const statusMap = {};
+    list.forEach((item) => {
+      const s = item.status || '未知';
+      statusMap[s] = (statusMap[s] || 0) + 1;
+    });
+
+    const statusColors = {
+      '运行中': '#52c41a',
+      '维修中': '#faad14',
+      '停机': '#f5222d',
+      '闲置': '#1890ff'
+    };
+
+    const labels = Object.keys(statusMap);
+    const values = labels.map((k) => statusMap[k]);
+    const colors = labels.map((k) => statusColors[k] || '#999');
+
+    function draw() {
+      EnterpriseCharts.pieChart(canvas, {
+        labels: labels,
+        values: values,
+        title: '',
+        colors: colors,
+        innerRadius: 0.55,
+        showLegend: true
+      });
     }
 
-    delegate(tbody, '[data-action="detail"]', 'click', handleDetailClick);
-    delegate(tbody, '[data-action="delete"]', 'click', handleEquipmentDelete);
+    draw();
+    EnterpriseCharts.autoResize(canvas, draw);
   }
 
-  /**
-   * 初始化设备档案页。
-   * @returns {void}
-   *
-   * 原因：设备档案页存在弹窗、搜索和表格委托事件，入口只保留防重复绑定和初始化编排。
-   */
+  // 初始化设备档案页。
   function initInfoPage() {
     const tbody = document.getElementById('info-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    bindInfoEvents(tbody);
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const errorEl = document.getElementById('form-error');
+    let editingId = null;
+
+    // 打开设备档案新增或编辑弹窗。
+    function openModal(data) {
+      editingId = data ? data.id : null;
+      titleEl.textContent = data ? '编辑设备' : '新增设备';
+      document.getElementById('f-name').value = data ? data.name : '';
+      document.getElementById('f-model').value = data ? data.model : '';
+      document.getElementById('f-location').value = data ? data.location : '';
+      document.getElementById('f-status').value = data ? data.status : '运行中';
+      document.getElementById('f-purchaseDate').value = data ? data.purchaseDate : '';
+      document.getElementById('f-lastMaintain').value = data ? data.lastMaintain : '';
+      document.getElementById('f-nextMaintain').value = data ? data.nextMaintain : '';
+      errorEl.textContent = '';
+      addClass(overlay, 'active');
+    }
+
+    // 关闭设备档案弹窗。
+    function closeModal() {
+      removeClass(overlay, 'active');
+      editingId = null;
+    }
+
+    // 读取设备档案弹窗表单数据。
+    function readForm() {
+      const name = view.getTrimmedValue('f-name');
+      if (!name) { errorEl.textContent = '请输入设备名称'; return null; }
+      return {
+        name: name,
+        model: view.getTrimmedValue('f-model'),
+        location: view.getTrimmedValue('f-location'),
+        status: view.getValue('f-status'),
+        purchaseDate: view.getValue('f-purchaseDate'),
+        lastMaintain: view.getValue('f-lastMaintain'),
+        nextMaintain: view.getValue('f-nextMaintain')
+      };
+    }
+
+    // 保存设备档案弹窗表单数据。
+    function saveModal() {
+      const payload = readForm();
+      if (!payload) return;
+      if (editingId) {
+        actions.updateEquipment(editingId, payload);
+      } else {
+        actions.createEquipment(payload);
+      }
+      closeModal();
+      refresh();
+    }
+
+    // 刷新设备档案页列表。
+    function refresh() {
+      const keyword = view.getTrimmedValue('search-input');
+      const list = view.filterByKeyword(store.sync().equipment, keyword, ['name', 'model']);
+      view.renderRows(tbody, list, renderEquipmentInfoRow, { colspan: 9, text: '暂无设备档案' });
+    }
+
+    view.bindModalClose(closeModal);
+    on(document.getElementById('search-input'), 'input', refresh);
+    on(document.getElementById('add-btn'), 'click', () => openModal(null));
+    on(document.getElementById('modal-save'), 'click', saveModal);
+
+    // 将当前行设备档案载入编辑弹窗。
+    delegate(tbody, '[data-action="edit"]', 'click', function() {
+      const item = store.sync().equipment.find((e) => e.id === this.dataset.id);
+      if (item) openModal(item);
+    });
+
+    // 删除当前行的设备档案。
+    delegate(tbody, '[data-action="delete"]', 'click', function() {
+      view.confirmDelete('确认删除该设备？', () => actions.deleteEquipment(this.dataset.id), refresh);
+    });
+
     tbody.dataset.bound = '1';
-    refreshInfoPage(tbody);
+    refresh();
   }
 
   // 初始化设备维护计划页。
@@ -259,38 +289,89 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('maintenance-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const errorEl = document.getElementById('form-error');
+    let editingId = null;
+
+    // 打开维护计划新增或编辑弹窗。
+    function openModal(data) {
+      editingId = data ? data.id : null;
+      titleEl.textContent = data ? '编辑维护计划' : '新建维护计划';
+      document.getElementById('f-equipName').value = data ? data.equipName : '';
+      document.getElementById('f-type').value = data ? data.type : '定期保养';
+      document.getElementById('f-planDate').value = data ? data.planDate : '';
+      document.getElementById('f-status').value = data ? data.status : '待执行';
+      document.getElementById('f-technician').value = data ? data.technician : '';
+      document.getElementById('f-cost').value = data ? data.cost : '';
+      errorEl.textContent = '';
+      addClass(overlay, 'active');
+    }
+
+    // 关闭维护计划弹窗。
+    function closeModal() {
+      removeClass(overlay, 'active');
+      editingId = null;
+    }
+
+    // 读取维护计划弹窗表单数据。
+    function readForm() {
+      const equipName = view.getTrimmedValue('f-equipName');
+      if (!equipName) { errorEl.textContent = '请输入设备名称'; return null; }
+      return {
+        equipName: equipName,
+        type: view.getValue('f-type'),
+        planDate: view.getValue('f-planDate'),
+        status: view.getValue('f-status'),
+        technician: view.getTrimmedValue('f-technician'),
+        cost: view.getValue('f-cost', 0)
+      };
+    }
+
+    // 保存维护计划弹窗表单数据。
+    function saveModal() {
+      const payload = readForm();
+      if (!payload) return;
+      if (editingId) {
+        actions.updateMaintenance(editingId, payload);
+      } else {
+        actions.createMaintenance(payload);
+      }
+      closeModal();
+      render();
+    }
+
     // 刷新设备维护统计和维护计划列表。
     function render() {
       const list = store.sync().maintenance;
+      const keyword = view.getTrimmedValue('search-input');
+      const filtered = keyword ? view.filterByKeyword(list, keyword, ['equipName', 'type']) : list;
+
       renderers.stats([
-        { icon: '📋', value: list.length, label: '维护计划总数' },
+        { icon: 'clipboard-list', value: list.length, label: '维护计划总数' },
         { icon: '⏳', value: list.filter((item) => item.status === '待执行').length, label: '待执行' },
-        { icon: '🔧', value: list.filter((item) => item.status === '进行中').length, label: '进行中' },
-        { icon: '💰', value: formatMoney(list.reduce((sum, item) => sum + item.cost, 0)), label: '预估总费用' }
+        { icon: 'wrench', value: list.filter((item) => item.status === '进行中').length, label: '进行中' },
+        { icon: 'currency-dollar', value: formatMoney(list.reduce((sum, item) => sum + item.cost, 0)), label: '预估总费用' }
       ]);
 
-      view.renderRows(tbody, list, renderMaintenanceRow, { colspan: 8, text: '暂无维护计划' });
+      view.renderRows(tbody, filtered, renderMaintenanceRow, { colspan: 8, text: '暂无维护计划' });
     }
 
-    on(document.getElementById('add-btn'), 'click', () => {
-      const payload = view.promptFields([
-        { name: 'equipName', label: '设备名称', required: true },
-        { name: 'type', label: '维护类型', defaultValue: '定期保养' },
-        { name: 'technician', label: '责任人', defaultValue: '张工' },
-        { name: 'cost', label: '预计费用', defaultValue: '3000' }
-      ]);
-      if (!payload) return;
+    view.bindModalClose(closeModal);
+    on(document.getElementById('add-btn'), 'click', () => openModal(null));
+    on(document.getElementById('modal-save'), 'click', saveModal);
+    on(document.getElementById('search-input'), 'input', render);
 
-      actions.createMaintenance(payload);
-      render();
+    // 将当前行维护计划载入编辑弹窗。
+    delegate(tbody, '[data-action="edit"]', 'click', function() {
+      const item = store.sync().maintenance.find((m) => m.id === this.dataset.id);
+      if (item) openModal(item);
     });
 
     // 删除当前行的设备维护计划。
-    function handleMaintenanceDelete() {
+    delegate(tbody, '[data-action="delete"]', 'click', function() {
       view.confirmDelete('确认删除该维护计划？', () => actions.deleteMaintenance(this.dataset.id), render);
-    }
-
-    delegate(tbody, '[data-action="delete"]', 'click', handleMaintenanceDelete);
+    });
 
     tbody.dataset.bound = '1';
     render();
@@ -301,38 +382,88 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('fault-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const errorEl = document.getElementById('form-error');
+    let editingId = null;
+
+    // 打开故障记录新增或编辑弹窗。
+    function openModal(data) {
+      editingId = data ? data.id : null;
+      titleEl.textContent = data ? '编辑故障记录' : '报告故障';
+      document.getElementById('f-equipName').value = data ? data.equipName : '';
+      document.getElementById('f-faultDate').value = data ? data.faultDate : '';
+      document.getElementById('f-description').value = data ? data.description : '';
+      document.getElementById('f-severity').value = data ? data.severity : '一般';
+      document.getElementById('f-status').value = data ? data.status : '待处理';
+      document.getElementById('f-handler').value = data ? data.handler : '';
+      errorEl.textContent = '';
+      addClass(overlay, 'active');
+    }
+
+    // 关闭故障记录弹窗。
+    function closeModal() {
+      removeClass(overlay, 'active');
+      editingId = null;
+    }
+
+    // 读取故障记录弹窗表单数据。
+    function readForm() {
+      const equipName = view.getTrimmedValue('f-equipName');
+      if (!equipName) { errorEl.textContent = '请输入设备名称'; return null; }
+      return {
+        equipName: equipName,
+        faultDate: view.getValue('f-faultDate'),
+        description: view.getTrimmedValue('f-description'),
+        severity: view.getValue('f-severity'),
+        status: view.getValue('f-status'),
+        handler: view.getTrimmedValue('f-handler')
+      };
+    }
+
+    // 保存故障记录弹窗表单数据。
+    function saveModal() {
+      const payload = readForm();
+      if (!payload) return;
+      if (editingId) {
+        actions.updateFault(editingId, payload);
+      } else {
+        actions.createFault(payload);
+      }
+      closeModal();
+      render();
+    }
+
     // 刷新设备故障统计和故障记录列表。
     function render() {
       const list = store.sync().faults;
+      const keyword = view.getTrimmedValue('search-input');
+      const filtered = keyword ? view.filterByKeyword(list, keyword, ['equipName', 'description', 'handler']) : list;
+
       renderers.stats([
-        { icon: '⚠️', value: list.length, label: '故障总数' },
-        { icon: '🔴', value: list.filter((item) => item.status !== '已解决').length, label: '未解决' },
-        { icon: '🚨', value: list.filter((item) => item.severity === '严重').length, label: '严重故障' }
+        { icon: 'alert-triangle', value: list.length, label: '故障总数' },
+        { icon: 'circle-filled', value: list.filter((item) => item.status !== '已解决').length, label: '未解决' },
+        { icon: 'bell-ringing', value: list.filter((item) => item.severity === '严重').length, label: '严重故障' }
       ]);
 
-      view.renderRows(tbody, list, renderFaultRow, { colspan: 8, text: '暂无故障记录' });
+      view.renderRows(tbody, filtered, renderFaultRow, { colspan: 8, text: '暂无故障记录' });
     }
 
-    on(document.getElementById('add-btn'), 'click', () => {
-      const payload = view.promptFields([
-        { name: 'equipName', label: '故障设备名称', required: true },
-        { name: 'description', label: '故障描述', defaultValue: '设备异常' },
-        { name: 'severity', label: '故障等级（严重/一般/轻微）', defaultValue: '一般' },
-        { name: 'handler', label: '处理人', defaultValue: '张工' },
-        { name: 'status', label: '处理状态（待处理/维修中/已解决）', defaultValue: '待处理' }
-      ]);
-      if (!payload) return;
+    view.bindModalClose(closeModal);
+    on(document.getElementById('add-btn'), 'click', () => openModal(null));
+    on(document.getElementById('modal-save'), 'click', saveModal);
+    on(document.getElementById('search-input'), 'input', render);
 
-      actions.createFault(payload);
-      render();
+    // 将当前行故障记录载入编辑弹窗。
+    delegate(tbody, '[data-action="edit"]', 'click', function() {
+      const item = store.sync().faults.find((f) => f.id === this.dataset.id);
+      if (item) openModal(item);
     });
 
     // 删除当前行的设备故障记录。
-    function handleFaultDelete() {
+    delegate(tbody, '[data-action="delete"]', 'click', function() {
       view.confirmDelete('确认删除该故障记录？', () => actions.deleteFault(this.dataset.id), render);
-    }
-
-    delegate(tbody, '[data-action="delete"]', 'click', handleFaultDelete);
+    });
 
     tbody.dataset.bound = '1';
     render();

@@ -17,16 +17,25 @@
           <div class="page-title">质量管理</div>
           <div class="page-subtitle">质检记录与分析</div>
         </div>
+        <button class="btn btn-primary" id="add-btn">+ 新增记录</button>
       </div>
 
       <div class="stats-grid" id="stats-grid"></div>
 
       <div class="card">
-        <div class="card-header"><div class="card-title">质检记录</div></div>
+        <div class="card-header">
+          <div class="card-title">质检记录</div>
+          <div class="toolbar-right">
+            <div class="search-box">
+              <span class="search-icon"><i class="ti ti-search"></i></span>
+              <input type="text" id="search-input" placeholder="搜索订单号/质检员">
+            </div>
+          </div>
+        </div>
         <div class="table-wrapper">
           <table class="table">
             <thead>
-              <tr><th>记录编号</th><th>订单号</th><th>质检员</th><th>质检日期</th><th>缺陷数</th><th>结果</th></tr>
+              <tr><th>记录编号</th><th>订单号</th><th>质检员</th><th>质检日期</th><th>缺陷数</th><th>结果</th><th>操作</th></tr>
             </thead>
             <tbody id="quality-tbody"></tbody>
           </table>
@@ -34,6 +43,51 @@
       </div>
     </main>
   </div>
+
+  <!-- 新增/编辑质检记录弹窗 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">新增记录</div>
+        <div class="modal-close" id="modal-close">✕</div>
+      </div>
+      <div class="modal-body">
+        <form id="quality-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">订单号</label>
+              <input class="form-control" id="f-orderId" placeholder="请输入订单号">
+            </div>
+            <div class="form-group">
+              <label class="form-label required">质检员</label>
+              <input class="form-control" id="f-inspector" placeholder="请输入质检员">
+            </div>
+            <div class="form-group">
+              <label class="form-label">质检日期</label>
+              <input class="form-control" type="date" id="f-date">
+            </div>
+            <div class="form-group">
+              <label class="form-label">结果</label>
+              <select class="form-control" id="f-result">
+                <option value="合格">合格</option>
+                <option value="不合格">不合格</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">缺陷数</label>
+              <input class="form-control" type="number" id="f-defects" min="0" placeholder="0">
+            </div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
+      </div>
+    </div>
+  </div>
+
 <script src="../../assets/js/main.js"></script>
 </body>
 </html>

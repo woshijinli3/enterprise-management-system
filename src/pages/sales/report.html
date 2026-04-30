@@ -21,7 +21,18 @@
 
       <div class="stats-grid" id="stats-grid"></div>
 
-      <div class="card">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:var(--spacing-lg);margin-top:var(--spacing-lg)">
+        <div class="card">
+          <div class="card-header"><div class="card-title">月度销售额趋势</div></div>
+          <div style="padding:var(--spacing-lg);height:280px"><canvas id="revenue-chart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">月度订单数趋势</div></div>
+          <div style="padding:var(--spacing-lg);height:280px"><canvas id="orders-chart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:var(--spacing-lg)">
         <div class="card-header"><div class="card-title">月度销售数据</div></div>
         <div class="table-wrapper">
           <table class="table">

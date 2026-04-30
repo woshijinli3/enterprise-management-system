@@ -1,80 +1,94 @@
-/* 表单分组：业务新增、编辑弹窗和筛选表单共享纵向间距。 */
+/* 1.表单分组 */
 .form-group {
-  margin-bottom: var(--spacing-md);
+    /* 每个表单项下面留一个中等间距。*/
+    margin-bottom: var(--spacing-md);
 }
 
-/* 表单标签：required 通过伪元素追加星号，避免每个 HTML 标签手写必填标记。 */
+
+/* 2.表单标签 */
 .form-label {
-  display: block;
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-xs);
+    display: block; /* 让标签独占一行。 */
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-xs);
 }
 
+/* 如果标签有 required 类，就在标签后面自动加一个红色星号，不需要每个 HTML 手动写 *。 */
+/*<label class="form-label required">姓名</label>   姓名 * */
 .form-label.required::after {
-  content: ' *';
-  color: var(--color-danger);
+    content: ' *';
+    color: var(--color-danger);
 }
 
-/* 表单控件：输入框、下拉框和文本域统一边框、焦点阴影和禁用态。 */
+
+/* 3.表单控件：输入框、下拉框和文本域统一边框、焦点阴影和禁用态。 */
 .form-control {
-  width: 100%;
-  padding: 8px var(--spacing-sm);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-base);
-  color: var(--color-text-primary);
-  background: var(--color-bg-white);
-  transition: var(--transition);
-  outline: none;
+    width: 100%;
+    padding: 8px var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    background: var(--color-bg-white);
+    transition: var(--transition);
+    outline: none; /* 移除默认样式 */
 }
 
+/* ① 正在编辑*/
 .form-control:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-bg);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-bg);
 }
 
+/* ② 编辑框 */
 .form-control::placeholder {
-  color: var(--color-text-disabled);
+    color: var(--color-text-disabled);
 }
 
+/* ③ 禁用输入框 */
 .form-control:disabled {
-  background: var(--color-bg);
-  cursor: not-allowed;
+    background: var(--color-bg);
+    cursor: not-allowed;
 }
 
+/* ④ 下拉框:表示可以展开 */
 select.form-control {
-  cursor: pointer;
+    cursor: pointer;
 }
 
-/* 表单提示：hint 展示辅助说明，error 展示校验失败信息。 */
+
+/* 4.表单提示：hint 展示辅助说明，error 展示校验失败信息。 */
+/* ① hint 辅助说明 */
 .form-hint {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-disabled);
-  margin-top: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-disabled);
+    margin-top: var(--spacing-xs);
 }
 
+/* ② error 校验失败信息 */
 .form-error {
-  font-size: var(--font-size-sm);
-  color: var(--color-danger);
-  margin-top: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--color-danger);
+    margin-top: var(--spacing-xs);
 }
 
 .form-control.is-error {
-  border-color: var(--color-danger);
+    border-color: var(--color-danger);
 }
 
-/* 表单布局：多字段表单使用自适应网格，底部操作按钮右对齐。 */
+
+/* 5.表单布局：多字段表单使用自适应网格，底部操作按钮右对齐。 */
 .form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-md);
+    display: grid; /* 表单字段自动布局 */
+    /* 表单字段数量不定，根据内容自动分配宽度 */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
 }
 
 .form-actions {
-  display: flex;
-  gap: var(--spacing-sm);
-  justify-content: flex-end;
-  margin-top: var(--spacing-lg);
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+    margin-top: var(--spacing-lg);
 }

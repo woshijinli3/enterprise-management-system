@@ -1,75 +1,84 @@
-/* 按钮基础组件：统一业务操作、弹窗操作和导航动作的尺寸、圆角和交互节奏。 */
+/* 1.按钮基础组件：统一业务操作、弹窗操作和导航动作的尺寸、圆角和交互节奏。 */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-xs);
-  padding: 7px var(--spacing-md);
-  border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  border: 1px solid transparent;
-  white-space: nowrap;
+    display: inline-flex; /*像行内元素一样排列*/
+    align-items: center; /*让元素垂直居中*/
+    justify-content: center; /*让元素水平居中*/
+    gap: var(--spacing-xs); /*按钮之间的间距*/
+    padding: 7px var(--spacing-md); /*按钮的内边距*/
+    border-radius: var(--border-radius-sm); /*按钮的圆角*/
+    font-size: var(--font-size-base); /*按钮的字体大小*/
+    font-weight: 500; /*按钮的字体粗细*/
+    cursor: pointer; /*鼠标悬停时按钮的样式*/
+    transition: var(--transition); /*按钮的过渡效果*/
+    border: 1px solid transparent; /*按钮的边框*/
+    white-space: nowrap; /*文本不换行*/
 }
 
-/* 按钮语义变体：主操作、描边操作、危险操作和弱化操作复用同一基础结构。 */
+
+/* 2.按钮语义变体：主操作、描边操作、危险操作和弱化操作复用同一基础结构。 */
+/* ① 主按钮 */
 .btn-primary {
-  background: var(--color-primary);
-  color: #fff;
-  border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
 }
 
 .btn-primary:hover {
-  background: var(--color-primary-light);
-  border-color: var(--color-primary-light);
+    background: var(--color-primary-light);
+    border-color: var(--color-primary-light);
 }
 
+/* ② 描边按钮 */
 .btn-outline {
-  background: transparent;
-  color: var(--color-primary);
-  border-color: var(--color-primary);
+    background: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 .btn-outline:hover {
-  background: var(--color-primary-bg);
+    background: var(--color-primary-bg);
 }
 
+/* ③ 危险按钮 */
 .btn-danger {
-  background: var(--color-danger);
-  color: #fff;
-  border-color: var(--color-danger);
+    background: var(--color-danger);
+    color: #fff;
+    border-color: var(--color-danger);
 }
 
 .btn-danger:hover {
-  opacity: 0.85;
+    /* 危险按钮变透明 */
+    opacity: 0.85;
 }
 
+/* ④ 弱化按钮 */
 .btn-ghost {
-  background: transparent;
-  color: var(--color-text-secondary);
-  border-color: var(--border-color);
+    background: transparent;
+    color: var(--color-text-secondary);
+    border-color: var(--border-color);
 }
 
 .btn-ghost:hover {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
-/* 按钮尺寸变体：表格行内操作使用小尺寸，页面主行动作使用大尺寸。 */
+
+/* 3.按钮尺寸变体：小尺寸和大尺寸复用同一基础结构。 */
 .btn-sm {
-  padding: 4px var(--spacing-sm);
-  font-size: var(--font-size-sm);
+    padding: 4px var(--spacing-sm);
+    font-size: var(--font-size-sm);
 }
 
 .btn-lg {
-  padding: 10px var(--spacing-xl);
-  font-size: var(--font-size-lg);
+    padding: 10px var(--spacing-xl);
+    font-size: var(--font-size-lg);
 }
 
-/* 禁用态：保留按钮占位和尺寸，只关闭点击意图。 */
+
+/* 4.禁用态：保留按钮占位和尺寸，只关闭点击意图。 */
 .btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+    opacity: 0.5;
+    /* 禁用态关闭点击意图 */
+    cursor: not-allowed;
 }

@@ -1,82 +1,91 @@
-/* 弹窗遮罩层：fixed + inset 覆盖整屏，z-index 低于移动导航高层级但高于业务内容。 */
+/* 1.弹窗遮罩层：fixed + inset 覆盖整屏，z-index 低于移动导航高层级但高于业务内容。 */
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
+    position: fixed; /* 固定在屏幕内 */
+    inset: 0; /* 覆盖整屏 */
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 200; /* 高于业务层 */
+    display: flex; /* 垂直居中 */
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
 /* 弹窗显示态：通过 opacity 和 pointer-events 切换可见性，避免隐藏弹窗拦截点击。 */
 .modal-overlay.active {
-  opacity: 1;
-  pointer-events: all;
+    opacity: 1;
+    pointer-events: all; /* 允许点击 */
 }
 
-/* 弹窗主体：限制最大宽度和视口高度，长表单在弹窗内部滚动。 */
+
+/* 2.弹窗主体：限制最大宽度和视口高度，长表单在弹窗内部滚动。 */
 .modal {
-  background: var(--color-bg-white);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
-  width: 90%;
-  max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
-  transform: translateY(-20px);
-  transition: transform 0.2s ease;
+    background: var(--color-bg-white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 90%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(-20px);
+    transition: transform 0.2s ease;
 }
 
 .modal-overlay.active .modal {
-  transform: translateY(0);
+    transform: translateY(0);
 }
 
-/* 弹窗结构：头部、正文和底部操作区保持统一留白与分隔线。 */
+
+/* 3.弹窗结构：头部、正文和底部操作区保持统一留白与分隔线。 */
 .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-lg);
-  border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
 }
 
+
+/* 4.弹窗标题：大号标题，用于弹窗标题。 */
 .modal-title {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--color-text-primary);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-text-primary);
 }
 
-/* 关闭按钮：圆形悬停反馈用于所有业务弹窗。 */
+
+/* 5.关闭按钮：圆形悬停反馈用于所有业务弹窗。 */
 .modal-close {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-  font-size: 18px;
-  cursor: pointer;
-  transition: var(--transition);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    transition: var(--transition);
 }
 
 .modal-close:hover {
-  background: var(--color-bg);
-  color: var(--color-text-primary);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
 }
 
+
+/* 6.弹窗内容：正文内容区域，用于弹窗内容。 */
 .modal-body {
-  padding: var(--spacing-lg);
+    padding: var(--spacing-lg);
 }
 
+
+/* 7.弹窗操作区：底部操作区，用于弹窗操作。 */
 .modal-footer {
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
 }

@@ -12,13 +12,13 @@ const appShell = (function() {
     'sidebar-placeholder': `
       <div class="sidebar-overlay" id="sidebar-overlay"></div>
       <nav class="sidebar" id="sidebar"><ul class="sidebar-nav">
-        <li><a href="#" data-page="dashboard.html" class="sidebar-item"><span class="icon">📊</span><span>仪表盘</span></a></li>
-        <li><a href="#" data-page="production/index.html" class="sidebar-item"><span class="icon">🏭</span><span>生产管理</span></a></li>
-        <li><a href="#" data-page="sales/index.html" class="sidebar-item"><span class="icon">📈</span><span>销售管理</span></a></li>
-        <li><a href="#" data-page="equipment/index.html" class="sidebar-item"><span class="icon">⚙️</span><span>设备管理</span></a></li>
-        <li><a href="#" data-page="purchase/index.html" class="sidebar-item"><span class="icon">🛒</span><span>采购管理</span></a></li>
-        <li><a href="#" data-page="warehouse/index.html" class="sidebar-item"><span class="icon">🏬</span><span>仓储管理</span></a></li>
-        <li><a href="#" data-page="employee/index.html" class="sidebar-item"><span class="icon">👥</span><span>员工管理</span></a></li>
+        <li><a href="#" data-page="dashboard.html" class="sidebar-item"><span class="icon"><i class="ti ti-chart-bar"></i></span><span>仪表盘</span></a></li>
+        <li><a href="#" data-page="production/index.html" class="sidebar-item"><span class="icon"><i class="ti ti-building-factory"></i></span><span>生产管理</span></a></li>
+        <li><a href="#" data-page="sales/index.html" class="sidebar-item"><span class="icon"><i class="ti ti-chart-line"></i></span><span>销售管理</span></a></li>
+        <li><a href="#" data-page="equipment/index.html" class="sidebar-item"><span class="icon"><i class="ti ti-settings"></i></span><span>设备管理</span></a></li>
+        <li><a href="#" data-page="purchase/index.html" class="sidebar-item"><span class="icon"><i class="ti ti-shopping-cart"></i></span><span>采购管理</span></a></li>
+        <li><a href="#" data-page="warehouse/index.html" class="sidebar-item"><span class="icon"><i class="ti ti-building-warehouse"></i></span><span>仓储管理</span></a></li>
+        <li><a href="#" data-page="employee/index.html" class="sidebar-item"><span class="icon"><i class="ti ti-users"></i></span><span>员工管理</span></a></li>
       </ul></nav>
     `,
     'footer-placeholder': '<footer class="footer"><span>© 2026 小麦科技 版权所有</span></footer>'

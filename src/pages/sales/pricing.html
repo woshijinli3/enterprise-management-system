@@ -25,7 +25,7 @@
         <div class="table-wrapper">
           <table class="table">
             <thead>
-              <tr><th>编号</th><th>产品</th><th>标准价</th><th>当前价</th><th>折扣</th><th>有效期</th><th>状态</th></tr>
+              <tr><th>编号</th><th>产品</th><th>标准价</th><th>当前价</th><th>折扣</th><th>有效期</th><th>状态</th><th>操作</th></tr>
             </thead>
             <tbody id="pricing-tbody"></tbody>
           </table>
@@ -33,6 +33,56 @@
       </div>
     </main>
   </div>
+
+  <!-- 新增/编辑定价弹窗 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">新增定价</div>
+        <div class="modal-close" id="modal-close">✕</div>
+      </div>
+      <div class="modal-body">
+        <form id="pricing-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">产品名称</label>
+              <input class="form-control" id="f-product" placeholder="请输入产品名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label">标准价</label>
+              <input class="form-control" type="number" id="f-standardPrice" placeholder="请输入标准价">
+            </div>
+            <div class="form-group">
+              <label class="form-label">执行价</label>
+              <input class="form-control" type="number" id="f-currentPrice" placeholder="请输入执行价">
+            </div>
+            <div class="form-group">
+              <label class="form-label">生效日期</label>
+              <input class="form-control" type="date" id="f-validFrom">
+            </div>
+            <div class="form-group">
+              <label class="form-label">截止日期</label>
+              <input class="form-control" type="date" id="f-validTo">
+            </div>
+            <div class="form-group">
+              <label class="form-label">状态</label>
+              <select class="form-control" id="f-status">
+                <option value="生效中">生效中</option>
+                <option value="已过期">已过期</option>
+                <option value="待审核">待审核</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
+      </div>
+    </div>
+  </div>
+
 <script src="../../assets/js/main.js"></script>
 </body>
 </html>

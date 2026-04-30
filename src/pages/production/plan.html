@@ -33,6 +33,47 @@
       </div>
     </main>
   </div>
+  <!-- 新增/编辑生产计划弹窗 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">新建计划</div>
+        <div class="modal-close" id="modal-close">✕</div>
+      </div>
+      <div class="modal-body">
+        <form id="plan-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">计划名称</label>
+              <input class="form-control" id="f-name" placeholder="请输入计划名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label">开始日期</label>
+              <input class="form-control" type="date" id="f-startDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">结束日期</label>
+              <input class="form-control" type="date" id="f-endDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">计划状态</label>
+              <select class="form-control" id="f-status">
+                <option value="待启动">待启动</option>
+                <option value="进行中">进行中</option>
+                <option value="已完成">已完成</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
+      </div>
+    </div>
+  </div>
+
 <script src="../../assets/js/main.js"></script>
 </body>
 </html>

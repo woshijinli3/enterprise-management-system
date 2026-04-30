@@ -17,6 +17,7 @@
           <div class="page-title">生产订单</div>
           <div class="page-subtitle">生产订单跟踪管理</div>
         </div>
+        <button class="btn btn-primary" id="add-btn">+ 新建订单</button>
       </div>
 
       <div class="stats-grid" id="stats-grid"></div>
@@ -26,7 +27,7 @@
           <div class="card-title">订单列表</div>
           <div class="toolbar-right">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="search-icon"><i class="ti ti-search"></i></span>
               <input type="text" id="search-input" placeholder="搜索客户/产品">
             </div>
           </div>
@@ -34,7 +35,7 @@
         <div class="table-wrapper">
           <table class="table">
             <thead>
-              <tr><th>订单号</th><th>客户</th><th>产品</th><th>数量</th><th>创建日期</th><th>交货日期</th><th>状态</th></tr>
+              <tr><th>订单号</th><th>客户</th><th>产品</th><th>数量</th><th>创建日期</th><th>交货日期</th><th>状态</th><th>操作</th></tr>
             </thead>
             <tbody id="order-tbody"></tbody>
           </table>
@@ -42,6 +43,57 @@
       </div>
     </main>
   </div>
+
+  <!-- 新增/编辑生产订单弹窗 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">新建订单</div>
+        <div class="modal-close" id="modal-close">✕</div>
+      </div>
+      <div class="modal-body">
+        <form id="order-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">客户</label>
+              <input class="form-control" id="f-customer" placeholder="请输入客户名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label required">产品</label>
+              <input class="form-control" id="f-product" placeholder="请输入产品名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label">数量</label>
+              <input class="form-control" type="number" id="f-quantity" placeholder="请输入数量">
+            </div>
+            <div class="form-group">
+              <label class="form-label">状态</label>
+              <select class="form-control" id="f-status">
+                <option value="待生产">待生产</option>
+                <option value="生产中">生产中</option>
+                <option value="已完成">已完成</option>
+                <option value="待审核">待审核</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">创建日期</label>
+              <input class="form-control" type="date" id="f-createDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">交货日期</label>
+              <input class="form-control" type="date" id="f-deliveryDate">
+            </div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
+      </div>
+    </div>
+  </div>
+
 <script src="../../assets/js/main.js"></script>
 </body>
 </html>

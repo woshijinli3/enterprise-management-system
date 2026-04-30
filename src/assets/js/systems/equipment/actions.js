@@ -27,6 +27,30 @@ equipmentSystem.actions = (function(store) {
   }
 
   /**
+   * 更新设备档案。
+   * @param {string} id 设备编号。
+   * @param {Object} payload 更新的字段。
+   * @returns {Object|null} 更新后的设备记录。
+   */
+  function updateEquipment(id, payload) {
+    return store.mutate((state) => {
+      const item = state.equipment.find((e) => e.id === id);
+      if (!item) return null;
+
+      Object.assign(item, {
+        name: payload.name,
+        model: payload.model,
+        location: payload.location,
+        status: payload.status,
+        purchaseDate: payload.purchaseDate,
+        lastMaintain: payload.lastMaintain,
+        nextMaintain: payload.nextMaintain
+      });
+      return item;
+    });
+  }
+
+  /**
    * 删除设备档案。
    * @param {string} id 设备编号。
    * @returns {void}
@@ -56,6 +80,29 @@ equipmentSystem.actions = (function(store) {
       };
 
       state.maintenance.push(item);
+      return item;
+    });
+  }
+
+  /**
+   * 更新设备维护计划。
+   * @param {string} id 维护计划编号。
+   * @param {Object} payload 更新的字段。
+   * @returns {Object|null} 更新后的维护计划记录。
+   */
+  function updateMaintenance(id, payload) {
+    return store.mutate((state) => {
+      const item = state.maintenance.find((m) => m.id === id);
+      if (!item) return null;
+
+      Object.assign(item, {
+        equipName: payload.equipName,
+        type: payload.type,
+        planDate: payload.planDate,
+        status: payload.status,
+        technician: payload.technician,
+        cost: Number(payload.cost) || 0
+      });
       return item;
     });
   }
@@ -95,6 +142,29 @@ equipmentSystem.actions = (function(store) {
   }
 
   /**
+   * 更新设备故障记录。
+   * @param {string} id 故障记录编号。
+   * @param {Object} payload 更新的字段。
+   * @returns {Object|null} 更新后的故障记录。
+   */
+  function updateFault(id, payload) {
+    return store.mutate((state) => {
+      const item = state.faults.find((f) => f.id === id);
+      if (!item) return null;
+
+      Object.assign(item, {
+        equipName: payload.equipName,
+        faultDate: payload.faultDate,
+        description: payload.description,
+        severity: payload.severity,
+        status: payload.status,
+        handler: payload.handler
+      });
+      return item;
+    });
+  }
+
+  /**
    * 删除设备故障记录。
    * @param {string} id 故障记录编号。
    * @returns {void}
@@ -107,10 +177,13 @@ equipmentSystem.actions = (function(store) {
 
   return {
     createEquipment,
+    updateEquipment,
     deleteEquipment,
     createMaintenance,
+    updateMaintenance,
     deleteMaintenance,
     createFault,
+    updateFault,
     deleteFault
   };
 })(equipmentSystem.store);

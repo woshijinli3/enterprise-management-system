@@ -9,7 +9,7 @@ window.warehouseSystem = window.warehouseSystem || {};
  *
  * 原因：仓储域当前以展示为主，多张表共享同一份库存状态，集中初始化可避免页面内联统计逻辑。
  */
-warehouseSystem.pages = (function(store, renderers, view) {
+warehouseSystem.pages = (function(store, actions, renderers, view) {
   // 渲染仓储首页的库存行。
   function renderInventoryRow(item) {
     const low = item.stock < item.minStock;
@@ -22,6 +22,7 @@ warehouseSystem.pages = (function(store, renderers, view) {
         <td>${low ? `<span style="color:var(--color-danger);font-weight:600">${item.stock}</span>` : item.stock} ${item.unit}</td>
         <td>${item.minStock} ${item.unit}</td>
         <td><span class="badge ${low ? 'badge-danger' : 'badge-success'}">${low ? '库存不足' : '正常'}</span></td>
+        <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
       </tr>
     `;
   }
@@ -171,17 +172,124 @@ warehouseSystem.pages = (function(store, renderers, view) {
     const tbody = document.getElementById('inventory-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    const data = store.sync();
-    renderers.stats([
-      { icon: '📦', value: data.inventory.length, label: '库存品类' },
-      { icon: '⚠️', value: data.inventory.filter((item) => item.stock < item.minStock).length, label: '库存预警' },
-      { icon: '📥', value: data.inbound.length, label: '近期入库' },
-      { icon: '📤', value: data.outbound.length, label: '近期出库' }
-    ]);
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const errorEl = document.getElementById('form-error');
+    let editingId = null;
 
-    view.renderRows(tbody, data.inventory, renderInventoryRow, { colspan: 7, text: '暂无库存数据' });
+    function openModal(data) {
+      editingId = data ? data.id : null;
+      titleEl.textContent = data ? '编辑库存' : '新增库存';
+      document.getElementById('f-name').value = data ? data.name : '';
+      document.getElementById('f-category').value = data ? data.category : '成品';
+      document.getElementById('f-spec').value = data ? data.spec : '';
+      document.getElementById('f-unit').value = data ? data.unit : '件';
+      document.getElementById('f-stock').value = data ? data.stock : '';
+      document.getElementById('f-minStock').value = data ? data.minStock : '';
+      document.getElementById('f-location').value = data ? data.location : '';
+      errorEl.textContent = '';
+      addClass(overlay, 'active');
+    }
+
+    function closeModal() {
+      removeClass(overlay, 'active');
+      editingId = null;
+    }
+
+    function readForm() {
+      const name = view.getTrimmedValue('f-name');
+      if (!name) { errorEl.textContent = '请输入物品名称'; return null; }
+      return {
+        name: name,
+        category: view.getValue('f-category'),
+        spec: view.getTrimmedValue('f-spec'),
+        unit: view.getTrimmedValue('f-unit'),
+        stock: view.getValue('f-stock'),
+        minStock: view.getValue('f-minStock'),
+        location: view.getTrimmedValue('f-location')
+      };
+    }
+
+    function saveModal() {
+      const payload = readForm();
+      if (!payload) return;
+      if (editingId) {
+        actions.updateInventory(editingId, payload);
+      } else {
+        actions.createInventory(payload);
+      }
+      closeModal();
+      refresh();
+    }
+
+    function render(list) {
+      const data = store.sync();
+      const keyword = view.getTrimmedValue('search-input');
+      const inventory = keyword ? view.filterByKeyword(data.inventory, keyword, ['name', 'category', 'location']) : data.inventory;
+      renderers.stats([
+        { icon: 'package', value: data.inventory.length, label: '库存品类' },
+        { icon: 'alert-triangle', value: data.inventory.filter((item) => item.stock < item.minStock).length, label: '库存预警' },
+        { icon: 'inbox', value: data.inbound.length, label: '近期入库' },
+        { icon: 'outbox', value: data.outbound.length, label: '近期出库' }
+      ]);
+      view.renderRows(tbody, list || inventory, renderInventoryRow, { colspan: 8, text: '暂无库存数据' });
+
+      // 绘制库存分类分布饼图。
+      var catCanvas = document.getElementById('category-chart');
+      if (catCanvas && typeof EnterpriseCharts !== 'undefined') {
+        var catMap = {};
+        data.inventory.forEach(function(item) {
+          catMap[item.category] = (catMap[item.category] || 0) + 1;
+        });
+        var cDraw = function() {
+          EnterpriseCharts.pieChart(catCanvas, {
+            labels: Object.keys(catMap),
+            values: Object.values(catMap)
+          });
+        };
+        cDraw();
+        EnterpriseCharts.autoResize(catCanvas, cDraw);
+      }
+
+      // 绘制库存状态概览饼图（正常 vs 预警）。
+      var statusCanvas = document.getElementById('stock-status-chart');
+      if (statusCanvas && typeof EnterpriseCharts !== 'undefined') {
+        var lowCount = data.inventory.filter(function(item) { return item.stock < item.minStock; }).length;
+        var normalCount = data.inventory.length - lowCount;
+        var sDraw = function() {
+          EnterpriseCharts.pieChart(statusCanvas, {
+            labels: ['库存正常', '库存预警'],
+            values: [normalCount, lowCount]
+          });
+        };
+        sDraw();
+        EnterpriseCharts.autoResize(statusCanvas, sDraw);
+      }
+    }
+
+    function refresh() {
+      render();
+    }
+
+    if (document.getElementById('add-btn')) {
+      on(document.getElementById('add-btn'), 'click', () => openModal(null));
+    }
+    if (overlay) {
+      on(document.getElementById('modal-save'), 'click', saveModal);
+      view.bindModalClose(closeModal);
+    }
+    on(document.getElementById('search-input'), 'input', refresh);
+
+    delegate(tbody, '[data-action="edit"]', 'click', function() {
+      const item = store.sync().inventory.find((i) => i.id === this.dataset.id);
+      if (item) openModal(item);
+    });
+    delegate(tbody, '[data-action="delete"]', 'click', function() {
+      view.confirmDelete('确认删除该库存物品？', () => actions.deleteInventory(this.dataset.id), refresh);
+    });
 
     tbody.dataset.bound = '1';
+    render();
   }
 
   // 初始化仓库布局页。
@@ -190,21 +298,29 @@ warehouseSystem.pages = (function(store, renderers, view) {
     const detailBody = document.getElementById('detail-tbody');
     if (!layoutBody || !detailBody || layoutBody.dataset.bound === '1') return;
 
-    const data = store.sync();
-    const totalCap = data.locations.reduce((sum, item) => sum + item.capacity, 0);
-    const totalUsed = data.locations.reduce((sum, item) => sum + item.used, 0);
-    const avgUsage = totalCap ? ((totalUsed / totalCap) * 100).toFixed(1) : '0.0';
+    function render() {
+      const data = store.sync();
+      const keyword = view.getTrimmedValue('search-input');
+      const locations = keyword ? view.filterByKeyword(data.locations, keyword, ['code', 'zone']) : data.locations;
+      const inventory = keyword ? view.filterByKeyword(data.inventory, keyword, ['name', 'category', 'location']) : data.inventory;
+      const totalCap = data.locations.reduce((sum, item) => sum + item.capacity, 0);
+      const totalUsed = data.locations.reduce((sum, item) => sum + item.used, 0);
+      const avgUsage = totalCap ? ((totalUsed / totalCap) * 100).toFixed(1) : '0.0';
 
-    renderers.stats([
-      { icon: '🗺️', value: data.locations.length, label: '货位数量' },
-      { icon: '📦', value: totalCap, label: '总容量' },
-      { icon: '📊', value: avgUsage + '%', label: '平均使用率' }
-    ]);
+      renderers.stats([
+        { icon: 'map', value: data.locations.length, label: '货位数量' },
+        { icon: 'package', value: totalCap, label: '总容量' },
+        { icon: 'chart-bar', value: avgUsage + '%', label: '平均使用率' }
+      ]);
 
-    view.renderRows(layoutBody, data.locations, renderLocationRow, { colspan: 8, text: '暂无货位数据' });
-    view.renderRows(detailBody, data.inventory, renderInventoryDetailRow, { colspan: 7, text: '暂无库存明细' });
+      view.renderRows(layoutBody, locations, renderLocationRow, { colspan: 8, text: '暂无货位数据' });
+      view.renderRows(detailBody, inventory, renderInventoryDetailRow, { colspan: 7, text: '暂无库存明细' });
+    }
+
+    on(document.getElementById('search-input'), 'input', render);
 
     layoutBody.dataset.bound = '1';
+    render();
   }
 
   // 初始化出入库作业页。
@@ -213,18 +329,104 @@ warehouseSystem.pages = (function(store, renderers, view) {
     const outboundBody = document.getElementById('outbound-tbody');
     if (!inboundBody || !outboundBody || inboundBody.dataset.bound === '1') return;
 
-    const data = store.sync();
-    renderers.stats([
-      { icon: '📥', value: data.inbound.length, label: '入库单数' },
-      { icon: '📤', value: data.outbound.length, label: '出库单数' },
-      { icon: '📦', value: data.inbound.reduce((sum, item) => sum + item.quantity, 0), label: '入库总量' },
-      { icon: '🚚', value: data.outbound.reduce((sum, item) => sum + item.quantity, 0), label: '出库总量' }
-    ]);
+    const inboundOverlay = document.getElementById('inbound-modal');
+    const outboundOverlay = document.getElementById('outbound-modal');
 
-    view.renderRows(inboundBody, data.inbound, renderInboundRow, { colspan: 6, text: '暂无入库记录' });
-    view.renderRows(outboundBody, data.outbound, renderOutboundRow, { colspan: 6, text: '暂无出库记录' });
+    function openInboundModal() {
+      document.getElementById('ib-item').value = '';
+      document.getElementById('ib-quantity').value = '';
+      document.getElementById('ib-unit').value = '件';
+      document.getElementById('ib-supplier').value = '';
+      document.getElementById('ib-date').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('ib-operator').value = '仓管员小张';
+      document.getElementById('ib-error').textContent = '';
+      addClass(inboundOverlay, 'active');
+    }
+
+    function closeInboundModal() {
+      removeClass(inboundOverlay, 'active');
+    }
+
+    function saveInbound() {
+      const item = view.getTrimmedValue('ib-item');
+      if (!item) { document.getElementById('ib-error').textContent = '请输入物品名称'; return; }
+      actions.createInbound({
+        item: item,
+        quantity: view.getValue('ib-quantity'),
+        unit: view.getTrimmedValue('ib-unit'),
+        supplier: view.getTrimmedValue('ib-supplier'),
+        date: view.getValue('ib-date'),
+        operator: view.getTrimmedValue('ib-operator')
+      });
+      closeInboundModal();
+      refresh();
+    }
+
+    function openOutboundModal() {
+      document.getElementById('ob-item').value = '';
+      document.getElementById('ob-quantity').value = '';
+      document.getElementById('ob-unit').value = '件';
+      document.getElementById('ob-customer').value = '';
+      document.getElementById('ob-date').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('ob-operator').value = '仓管员小李';
+      document.getElementById('ob-error').textContent = '';
+      addClass(outboundOverlay, 'active');
+    }
+
+    function closeOutboundModal() {
+      removeClass(outboundOverlay, 'active');
+    }
+
+    function saveOutbound() {
+      const item = view.getTrimmedValue('ob-item');
+      if (!item) { document.getElementById('ob-error').textContent = '请输入物品名称'; return; }
+      actions.createOutbound({
+        item: item,
+        quantity: view.getValue('ob-quantity'),
+        unit: view.getTrimmedValue('ob-unit'),
+        customer: view.getTrimmedValue('ob-customer'),
+        date: view.getValue('ob-date'),
+        operator: view.getTrimmedValue('ob-operator')
+      });
+      closeOutboundModal();
+      refresh();
+    }
+
+    function render() {
+      const data = store.sync();
+      const keyword = view.getTrimmedValue('search-input');
+      const inbound = keyword ? view.filterByKeyword(data.inbound, keyword, ['item', 'supplier']) : data.inbound;
+      const outbound = keyword ? view.filterByKeyword(data.outbound, keyword, ['item', 'customer']) : data.outbound;
+
+      renderers.stats([
+        { icon: 'inbox', value: data.inbound.length, label: '入库单数' },
+        { icon: 'outbox', value: data.outbound.length, label: '出库单数' },
+        { icon: 'package', value: data.inbound.reduce((sum, item) => sum + item.quantity, 0), label: '入库总量' },
+        { icon: 'truck', value: data.outbound.reduce((sum, item) => sum + item.quantity, 0), label: '出库总量' }
+      ]);
+      view.renderRows(inboundBody, inbound, renderInboundRow, { colspan: 6, text: '暂无入库记录' });
+      view.renderRows(outboundBody, outbound, renderOutboundRow, { colspan: 6, text: '暂无出库记录' });
+    }
+
+    function refresh() {
+      render();
+    }
+
+    on(document.getElementById('add-inbound-btn'), 'click', openInboundModal);
+    on(document.getElementById('inbound-save'), 'click', saveInbound);
+    on(document.getElementById('inbound-close'), 'click', closeInboundModal);
+    on(document.getElementById('inbound-cancel'), 'click', closeInboundModal);
+    on(inboundOverlay, 'click', (e) => { if (e.target === inboundOverlay) closeInboundModal(); });
+    on(document.getElementById('search-input'), 'input', refresh);
+
+    on(document.getElementById('add-outbound-btn'), 'click', openOutboundModal);
+    on(document.getElementById('outbound-save'), 'click', saveOutbound);
+    on(document.getElementById('outbound-close'), 'click', closeOutboundModal);
+    on(document.getElementById('outbound-cancel'), 'click', closeOutboundModal);
+    on(outboundOverlay, 'click', (e) => { if (e.target === outboundOverlay) closeOutboundModal(); });
 
     inboundBody.dataset.bound = '1';
+    render();
   }
 
   // 初始化运输跟踪页。
@@ -233,19 +435,28 @@ warehouseSystem.pages = (function(store, renderers, view) {
     const sourceBody = document.getElementById('source-tbody');
     if (!transportBody || !sourceBody || transportBody.dataset.bound === '1') return;
 
-    const data = store.sync();
-    const today = new Date();
-    renderers.stats([
-      { icon: '📤', value: data.outbound.length, label: '出库单数' },
-      { icon: '🚚', value: data.outbound.reduce((sum, item) => sum + item.quantity, 0), label: '出库总量' },
-      { icon: '📥', value: data.inbound.length, label: '入库单数' },
-      { icon: '📦', value: data.inbound.reduce((sum, item) => sum + item.quantity, 0), label: '入库总量' }
-    ]);
+    function render() {
+      const data = store.sync();
+      const today = new Date();
+      const keyword = view.getTrimmedValue('search-input');
+      const outbound = keyword ? view.filterByKeyword(data.outbound, keyword, ['item', 'customer']) : data.outbound;
+      const inbound = keyword ? view.filterByKeyword(data.inbound, keyword, ['item', 'supplier']) : data.inbound;
 
-    view.renderRows(transportBody, data.outbound, renderTransportRow(today), { colspan: 7, text: '暂无运输记录' });
-    view.renderRows(sourceBody, data.inbound, renderInboundRow, { colspan: 6, text: '暂无入库来源' });
+      renderers.stats([
+        { icon: 'outbox', value: data.outbound.length, label: '出库单数' },
+        { icon: 'truck', value: data.outbound.reduce((sum, item) => sum + item.quantity, 0), label: '出库总量' },
+        { icon: 'inbox', value: data.inbound.length, label: '入库单数' },
+        { icon: 'package', value: data.inbound.reduce((sum, item) => sum + item.quantity, 0), label: '入库总量' }
+      ]);
+
+      view.renderRows(transportBody, outbound, renderTransportRow(today), { colspan: 7, text: '暂无运输记录' });
+      view.renderRows(sourceBody, inbound, renderInboundRow, { colspan: 6, text: '暂无入库来源' });
+    }
+
+    on(document.getElementById('search-input'), 'input', render);
 
     transportBody.dataset.bound = '1';
+    render();
   }
 
   // 初始化库存预警页。
@@ -254,20 +465,27 @@ warehouseSystem.pages = (function(store, renderers, view) {
     const normalBody = document.getElementById('normal-tbody');
     if (!warningBody || !normalBody || warningBody.dataset.bound === '1') return;
 
-    const inventory = store.sync().inventory;
-    const lowItems = inventory.filter((item) => item.stock < item.minStock);
-    const normalItems = inventory.filter((item) => item.stock >= item.minStock);
+    function render() {
+      const inventory = store.sync().inventory;
+      const keyword = view.getTrimmedValue('search-input');
+      const filtered = keyword ? view.filterByKeyword(inventory, keyword, ['name', 'category']) : inventory;
+      const lowItems = filtered.filter((item) => item.stock < item.minStock);
+      const normalItems = filtered.filter((item) => item.stock >= item.minStock);
 
-    renderers.stats([
-      { icon: '📦', value: inventory.length, label: '库存品类' },
-      { icon: '⚠️', value: lowItems.length, label: '预警品类' },
-      { icon: '✅', value: normalItems.length, label: '库存正常' }
-    ]);
+      renderers.stats([
+        { icon: 'package', value: inventory.length, label: '库存品类' },
+        { icon: 'alert-triangle', value: inventory.filter((item) => item.stock < item.minStock).length, label: '预警品类' },
+        { icon: 'circle-check', value: inventory.filter((item) => item.stock >= item.minStock).length, label: '库存正常' }
+      ]);
 
-    view.renderRows(warningBody, lowItems, renderWarningRow, { colspan: 8, text: '暂无库存预警' });
-    view.renderRows(normalBody, normalItems, renderNormalStockRow, { colspan: 6, text: '暂无正常库存' });
+      view.renderRows(warningBody, lowItems, renderWarningRow, { colspan: 8, text: '暂无库存预警' });
+      view.renderRows(normalBody, normalItems, renderNormalStockRow, { colspan: 6, text: '暂无正常库存' });
+    }
+
+    on(document.getElementById('search-input'), 'input', render);
 
     warningBody.dataset.bound = '1';
+    render();
   }
 
   // 按当前仓储管理子页面分发初始化逻辑。
@@ -296,7 +514,7 @@ warehouseSystem.pages = (function(store, renderers, view) {
   return {
     init
   };
-})(warehouseSystem.store, warehouseSystem.renderers, EnterpriseView);
+})(warehouseSystem.store, warehouseSystem.actions, warehouseSystem.renderers, EnterpriseView);
 
 // 对外暴露仓储管理初始化入口，供 module-loader.js 调用。
 warehouseSystem.init = function() {

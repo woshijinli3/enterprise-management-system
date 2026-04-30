@@ -23,7 +23,15 @@
       <div class="stats-grid" id="stats-grid"></div>
 
       <div class="card">
-        <div class="card-header"><div class="card-title">维护计划列表</div></div>
+        <div class="card-header">
+          <div class="card-title">维护计划列表</div>
+          <div class="toolbar-right">
+            <div class="search-box">
+              <span class="search-icon"><i class="ti ti-search"></i></span>
+              <input type="text" id="search-input" placeholder="搜索设备名称/维护类型">
+            </div>
+          </div>
+        </div>
         <div class="table-wrapper">
           <table class="table">
             <thead>
@@ -34,6 +42,59 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- 新增/编辑维护计划弹窗 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">新建维护计划</div>
+        <div class="modal-close" id="modal-close">✕</div>
+      </div>
+      <div class="modal-body">
+        <form id="maintenance-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">设备名称</label>
+              <input class="form-control" id="f-equipName" placeholder="请输入设备名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label">维护类型</label>
+              <select class="form-control" id="f-type">
+                <option value="定期保养">定期保养</option>
+                <option value="故障维修">故障维修</option>
+                <option value="大修">大修</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">计划日期</label>
+              <input class="form-control" type="date" id="f-planDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">状态</label>
+              <select class="form-control" id="f-status">
+                <option value="待执行">待执行</option>
+                <option value="进行中">进行中</option>
+                <option value="已完成">已完成</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">责任人</label>
+              <input class="form-control" id="f-technician" placeholder="请输入责任人">
+            </div>
+            <div class="form-group">
+              <label class="form-label">预估费用</label>
+              <input class="form-control" type="number" id="f-cost" placeholder="请输入预估费用">
+            </div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
+      </div>
+    </div>
   </div>
 <script src="../../assets/js/main.js"></script>
 </body>

@@ -27,7 +27,7 @@
           <div class="card-title">供应商列表</div>
           <div class="toolbar-right">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="search-icon"><i class="ti ti-search"></i></span>
               <input type="text" id="search-input" placeholder="搜索供应商名称/联系人">
             </div>
           </div>
@@ -43,6 +43,67 @@
       </div>
     </main>
   </div>
+
+  <!-- 新增/编辑供应商弹窗 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">新增供应商</div>
+        <div class="modal-close" id="modal-close">✕</div>
+      </div>
+      <div class="modal-body">
+        <form id="supplier-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">供应商名称</label>
+              <input class="form-control" id="f-name" placeholder="请输入供应商名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label required">联系人</label>
+              <input class="form-control" id="f-contact" placeholder="请输入联系人">
+            </div>
+            <div class="form-group">
+              <label class="form-label">联系电话</label>
+              <input class="form-control" id="f-phone" placeholder="请输入联系电话">
+            </div>
+            <div class="form-group">
+              <label class="form-label">供应类别</label>
+              <select class="form-control" id="f-category">
+                <option value="原材料">原材料</option>
+                <option value="零部件">零部件</option>
+                <option value="辅材">辅材</option>
+                <option value="设备">设备</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">评级（1-5）</label>
+              <select class="form-control" id="f-rating">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">合作状态</label>
+              <select class="form-control" id="f-status">
+                <option value="合作中">合作中</option>
+                <option value="暂停">暂停</option>
+                <option value="终止">终止</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
+      </div>
+    </div>
+  </div>
+
 <script src="../../assets/js/main.js"></script>
 </body>
 </html>

@@ -64,9 +64,65 @@ purchaseSystem.actions = (function(store) {
     });
   }
 
+  /**
+   * 更新供应商档案。
+   * @param {string} id 供应商编号。
+   * @param {Object} payload 更新的字段。
+   * @returns {Object|null} 更新后的供应商记录，未找到时返回 null。
+   */
+  function updateSupplier(id, payload) {
+    return store.mutate((state) => {
+      const item = state.suppliers.find((s) => s.id === id);
+      if (!item) return null;
+      if (payload.name !== undefined) item.name = payload.name;
+      if (payload.contact !== undefined) item.contact = payload.contact;
+      if (payload.phone !== undefined) item.phone = payload.phone;
+      if (payload.category !== undefined) item.category = payload.category;
+      if (payload.rating !== undefined) item.rating = Number(payload.rating) || 3;
+      if (payload.status !== undefined) item.status = payload.status;
+      return item;
+    });
+  }
+
+  /**
+   * 更新采购订单。
+   * @param {string} id 订单编号。
+   * @param {Object} payload 更新的字段。
+   * @returns {Object|null} 更新后的订单记录。
+   */
+  function updateOrder(id, payload) {
+    return store.mutate((state) => {
+      const item = state.orders.find((o) => o.id === id);
+      if (!item) return null;
+      if (payload.supplierName !== undefined) item.supplierName = payload.supplierName;
+      if (payload.item !== undefined) item.item = payload.item;
+      if (payload.quantity !== undefined) item.quantity = Number(payload.quantity) || 0;
+      if (payload.unit !== undefined) item.unit = payload.unit;
+      if (payload.unitPrice !== undefined) item.unitPrice = Number(payload.unitPrice) || 0;
+      if (payload.status !== undefined) item.status = payload.status;
+      if (payload.deliveryDate !== undefined) item.deliveryDate = payload.deliveryDate;
+      item.amount = item.quantity * item.unitPrice;
+      return item;
+    });
+  }
+
+  /**
+   * 删除采购订单。
+   * @param {string} id 订单编号。
+   * @returns {void}
+   */
+  function deleteOrder(id) {
+    store.mutate((state) => {
+      state.orders = state.orders.filter((item) => item.id !== id);
+    });
+  }
+
   return {
     createSupplier,
+    updateSupplier,
     deleteSupplier,
-    createOrder
+    createOrder,
+    updateOrder,
+    deleteOrder
   };
 })(purchaseSystem.store);

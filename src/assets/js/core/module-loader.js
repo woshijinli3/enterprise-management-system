@@ -11,7 +11,7 @@ const appScriptLoader = (function() {
   };
 
   const BUSINESS_SCRIPT_ORDER = ['store', 'actions', 'renderers', 'pages'];
-  const SHARED_SCRIPTS = ['state', 'view'];
+  const SHARED_SCRIPTS = ['state', 'view', 'charts'];
 
   /**
    * 加载一个经典脚本并用 data-runtime-script 去重。

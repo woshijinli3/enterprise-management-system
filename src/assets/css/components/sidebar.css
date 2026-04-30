@@ -1,109 +1,123 @@
-/* 侧边栏占位层：组件异步注入前占住左侧区域，避免业务内容加载时横向跳动。 */
+/* 1.侧边栏占位层：组件异步注入前占住左侧区域，避免业务内容加载时横向跳动。 */
 #sidebar-placeholder:empty {
-  position: fixed;
-  top: var(--header-height);
-  left: 0;
-  width: var(--sidebar-width);
-  height: calc(100vh - var(--header-height));
-  background: var(--color-bg-sidebar);
-  z-index: 101;
-}
-
-/* 后台侧边栏：固定在头部下方，z-index 略高于 header 占位以覆盖业务滚动内容。 */
-.sidebar {
-  position: fixed;
-  top: var(--header-height);
-  left: 0;
-  width: var(--sidebar-width);
-  height: calc(100vh - var(--header-height));
-  background: var(--color-bg-sidebar);
-  overflow-y: auto;
-  z-index: 101;
-  padding: var(--spacing-md) 0;
-}
-
-/* 导航分组：业务域菜单使用分组标题和可激活条目表达当前模块位置。 */
-.sidebar-nav {
-  padding: 0;
-  animation: componentFadeIn 0.3s ease-out forwards;
-}
-
-.sidebar-section {
-  margin-bottom: var(--spacing-sm);
-}
-
-.sidebar-section-title {
-  font-size: var(--font-size-xs);
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  margin-top: var(--spacing-sm);
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: 10px var(--spacing-lg);
-  color: #aaa;
-  font-size: var(--font-size-base);
-  cursor: pointer;
-  transition: var(--transition);
-  border-left: 3px solid transparent;
-  text-decoration: none;
-}
-
-.sidebar-item:hover {
-  background: var(--color-bg-sidebar-hover);
-  color: #fff;
-}
-
-.sidebar-item.active {
-  background: var(--color-bg-sidebar-hover);
-  color: var(--color-primary);
-  border-left-color: var(--color-primary);
-}
-
-.sidebar-item .icon {
-  font-size: var(--font-size-lg);
-  width: 20px;
-  text-align: center;
-}
-
-/* 移动端抽屉侧边栏：默认移出视口，open 类滑入；遮罩层独立控制点击关闭区域。 */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 1001;
-    width: min(82vw, var(--sidebar-width));
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .sidebar-overlay {
     position: fixed;
     top: var(--header-height);
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-  }
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--header-height));
+    background: var(--color-bg-sidebar);
+    z-index: 101;
+}
 
-  .sidebar-overlay.active {
-    opacity: 1;
-    visibility: visible;
-  }
 
-  #sidebar-placeholder:empty {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-  }
+/* 2.后台侧边栏：固定在头部下方，z-index 略高于 header 占位以覆盖业务滚动内容。 */
+.sidebar {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--header-height));
+    background: var(--color-bg-sidebar);
+    overflow-y: auto;
+    z-index: 101;
+    padding: var(--spacing-md) 0;
+}
+
+
+/* 3.导航分组：业务域菜单使用分组标题和可激活条目表达当前模块位置。 */
+.sidebar-nav {
+    padding: 0;
+    animation: componentFadeIn 0.3s ease-out forwards;
+}
+
+
+/* 4.侧边栏分组和分组标题 */
+.sidebar-section {
+    /* margin-bottom：元素下外边距，也就是它和下面元素之间的垂直间距。*/
+    margin-bottom: var(--spacing-sm);
+}
+
+.sidebar-section-title {
+    font-size: var(--font-size-xs);
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    margin-top: var(--spacing-sm);
+}
+
+
+/* 5.导航菜单项 */
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 10px var(--spacing-lg);
+    color: #aaa;
+    font-size: var(--font-size-base);
+    cursor: pointer;
+    transition: var(--transition);
+    border-left: 3px solid transparent;
+    text-decoration: none;
+}
+
+.sidebar-item:hover {
+    background: var(--color-bg-sidebar-hover);
+    color: #fff;
+}
+
+.sidebar-item.active {
+    background: var(--color-bg-sidebar-hover);
+    color: var(--color-primary);
+    border-left-color: var(--color-primary);
+}
+
+.sidebar-item .icon {
+    font-size: var(--font-size-lg);
+    width: 20px;
+    text-align: center;
+}
+
+
+/* 6.移动端抽屉侧边栏：默认移出视口，open 类滑入；遮罩层独立控制点击关闭区域。 */
+@media (max-width: 768px) {
+    /* ① 抽屉化*/
+    .sidebar {
+        /*手机端 sidebar 默认移出屏幕左侧*/
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1001;
+        width: min(82vw, var(--sidebar-width));
+    }
+
+    /* ② 抽屉打开 */
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* ③ 抽屉遮罩 */
+    .sidebar-overlay {
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    /* ④ 抽屉打开+灯罩 */
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* ⑤ 侧边栏占位层 */
+    #sidebar-placeholder:empty {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
 }

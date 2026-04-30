@@ -40,10 +40,10 @@ employeeSystem.pages = (function(store, actions, renderers, view) {
   // 统计员工总数、在职人数、试用期人数和部门数。
   function renderEmployeeStats(list) {
     renderers.stats([
-      { icon: '👥', value: list.length, label: '员工总数' },
-      { icon: '✅', value: list.filter((item) => item.status === '在职').length, label: '在职员工' },
-      { icon: '🕐', value: list.filter((item) => item.status === '试用期').length, label: '试用期员工' },
-      { icon: '🏢', value: new Set(list.map((item) => item.dept)).size, label: '部门数量' }
+      { icon: 'users', value: list.length, label: '员工总数' },
+      { icon: 'circle-check', value: list.filter((item) => item.status === '在职').length, label: '在职员工' },
+      { icon: 'clock', value: list.filter((item) => item.status === '试用期').length, label: '试用期员工' },
+      { icon: 'building', value: new Set(list.map((item) => item.dept)).size, label: '部门数量' }
     ]);
   }
 
@@ -95,6 +95,7 @@ employeeSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.leaveDays > 0 ? item.leaveDays + ' 天' : '—'}</td>
         <td>${item.overtimeHours} h</td>
         <td><span class="badge ${rateClass}">${rate}%</span></td>
+        <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
       </tr>
     `;
   }
@@ -110,6 +111,7 @@ employeeSystem.pages = (function(store, actions, renderers, view) {
         <td><strong>${item.score}</strong></td>
         <td><span class="badge ${renderers.gradeMap[item.grade] || 'badge-default'}">${item.grade}</span></td>
         <td style="color:var(--color-text-secondary)">${item.comment}</td>
+        <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
       </tr>
     `;
   }
@@ -126,7 +128,7 @@ employeeSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.deadline}</td>
         <td>${item.applicants}</td>
         <td><span class="badge ${renderers.recruitmentStatusMap[item.status] || 'badge-default'}">${item.status}</span></td>
-        <td><div class="table-actions"><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
+        <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
       </tr>
     `;
   }
@@ -196,17 +198,91 @@ employeeSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('attendance-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    const list = store.sync().attendance;
-    renderers.stats([
-      { icon: '👥', value: list.length, label: '统计人数' },
-      { icon: '📅', value: list.reduce((sum, item) => sum + item.actualDays, 0), label: '总出勤天数' },
-      { icon: '⏰', value: list.reduce((sum, item) => sum + item.overtimeHours, 0) + 'h', label: '总加班时长' },
-      { icon: '⚠️', value: list.reduce((sum, item) => sum + item.lateTimes, 0), label: '迟到次数' }
-    ]);
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const errorEl = document.getElementById('form-error');
+    let editingId = null;
 
-    view.renderRows(tbody, list, renderAttendanceRow, { colspan: 8, text: '暂无考勤记录' });
+    function openModal(data) {
+      editingId = data ? data.id : null;
+      titleEl.textContent = data ? '编辑考勤' : '新增考勤';
+      document.getElementById('f-empId').value = data ? data.empId : '';
+      document.getElementById('f-empName').value = data ? data.empName : '';
+      document.getElementById('f-month').value = data ? data.month : '';
+      document.getElementById('f-workDays').value = data ? data.workDays : '22';
+      document.getElementById('f-actualDays').value = data ? data.actualDays : '';
+      document.getElementById('f-lateTimes').value = data ? data.lateTimes : '0';
+      document.getElementById('f-leaveDays').value = data ? data.leaveDays : '0';
+      document.getElementById('f-overtimeHours').value = data ? data.overtimeHours : '0';
+      errorEl.textContent = '';
+      addClass(overlay, 'active');
+    }
+
+    function closeModal() {
+      removeClass(overlay, 'active');
+      editingId = null;
+    }
+
+    function readForm() {
+      const empId = view.getTrimmedValue('f-empId');
+      if (!empId) { errorEl.textContent = '请输入工号'; return null; }
+      const empName = view.getTrimmedValue('f-empName');
+      if (!empName) { errorEl.textContent = '请输入姓名'; return null; }
+      return {
+        empId: empId,
+        empName: empName,
+        month: view.getValue('f-month'),
+        workDays: view.getValue('f-workDays'),
+        actualDays: view.getValue('f-actualDays'),
+        lateTimes: view.getValue('f-lateTimes'),
+        leaveDays: view.getValue('f-leaveDays'),
+        overtimeHours: view.getValue('f-overtimeHours')
+      };
+    }
+
+    function saveModal() {
+      const payload = readForm();
+      if (!payload) return;
+      if (editingId) {
+        actions.updateAttendance(editingId, payload);
+      } else {
+        actions.createAttendance(payload);
+      }
+      closeModal();
+      refresh();
+    }
+
+    function render() {
+      const list = store.sync().attendance;
+      const keyword = view.getTrimmedValue('search-input');
+      const filtered = keyword ? view.filterByKeyword(list, keyword, ['empId', 'empName']) : list;
+
+      renderers.stats([
+        { icon: 'users', value: list.length, label: '统计人数' },
+        { icon: 'calendar', value: list.reduce((sum, item) => sum + item.actualDays, 0), label: '总出勤天数' },
+        { icon: 'alarm', value: list.reduce((sum, item) => sum + item.overtimeHours, 0) + 'h', label: '总加班时长' },
+        { icon: 'alert-triangle', value: list.reduce((sum, item) => sum + item.lateTimes, 0), label: '迟到次数' }
+      ]);
+      view.renderRows(tbody, filtered, renderAttendanceRow, { colspan: 9, text: '暂无考勤记录' });
+    }
+
+    function refresh() { render(); }
+
+    on(document.getElementById('add-btn'), 'click', () => openModal(null));
+    on(document.getElementById('modal-save'), 'click', saveModal);
+    on(document.getElementById('search-input'), 'input', refresh);
+    view.bindModalClose(closeModal);
+
+    delegate(tbody, '[data-action="edit"]', 'click', function() {
+      const item = store.sync().attendance.find((a) => a.id === this.dataset.id);
+      if (item) openModal(item);
+    });
+    delegate(tbody, '[data-action="delete"]', 'click', function() {
+      view.confirmDelete('确认删除该考勤记录？', () => actions.deleteAttendance(this.dataset.id), refresh);
+    });
 
     tbody.dataset.bound = '1';
+    render();
   }
 
   // 初始化绩效管理页。
@@ -214,19 +290,90 @@ employeeSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('perf-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    const list = store.sync().performance;
-    const average = list.length ? (list.reduce((sum, item) => sum + item.score, 0) / list.length).toFixed(1) : '0.0';
-    const aCount = list.filter((item) => String(item.grade).startsWith('A')).length;
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const errorEl = document.getElementById('form-error');
+    let editingId = null;
 
-    renderers.stats([
-      { icon: '📊', value: list.length, label: '参评人数' },
-      { icon: '⭐', value: average, label: '平均分' },
-      { icon: '🏆', value: aCount, label: 'A级人数' }
-    ]);
+    function openModal(data) {
+      editingId = data ? data.id : null;
+      titleEl.textContent = data ? '编辑绩效' : '新增绩效';
+      document.getElementById('f-empId').value = data ? data.empId : '';
+      document.getElementById('f-empName').value = data ? data.empName : '';
+      document.getElementById('f-dept').value = data ? data.dept : '';
+      document.getElementById('f-period').value = data ? data.period : '';
+      document.getElementById('f-score').value = data ? data.score : '';
+      document.getElementById('f-grade').value = data ? data.grade : 'B';
+      document.getElementById('f-comment').value = data ? data.comment : '';
+      errorEl.textContent = '';
+      addClass(overlay, 'active');
+    }
 
-    view.renderRows(tbody, list, renderPerformanceRow, { colspan: 7, text: '暂无绩效记录' });
+    function closeModal() {
+      removeClass(overlay, 'active');
+      editingId = null;
+    }
+
+    function readForm() {
+      const empId = view.getTrimmedValue('f-empId');
+      if (!empId) { errorEl.textContent = '请输入工号'; return null; }
+      const empName = view.getTrimmedValue('f-empName');
+      if (!empName) { errorEl.textContent = '请输入姓名'; return null; }
+      return {
+        empId: empId,
+        empName: empName,
+        dept: view.getTrimmedValue('f-dept'),
+        period: view.getTrimmedValue('f-period'),
+        score: view.getValue('f-score'),
+        grade: view.getValue('f-grade'),
+        comment: view.getTrimmedValue('f-comment')
+      };
+    }
+
+    function saveModal() {
+      const payload = readForm();
+      if (!payload) return;
+      if (editingId) {
+        actions.updatePerformance(editingId, payload);
+      } else {
+        actions.createPerformance(payload);
+      }
+      closeModal();
+      refresh();
+    }
+
+    function render() {
+      const list = store.sync().performance;
+      const keyword = view.getTrimmedValue('search-input');
+      const filtered = keyword ? view.filterByKeyword(list, keyword, ['empId', 'empName', 'dept']) : list;
+      const average = list.length ? (list.reduce((sum, item) => sum + item.score, 0) / list.length).toFixed(1) : '0.0';
+      const aCount = list.filter((item) => String(item.grade).startsWith('A')).length;
+
+      renderers.stats([
+        { icon: 'chart-bar', value: list.length, label: '参评人数' },
+        { icon: 'star', value: average, label: '平均分' },
+        { icon: 'trophy', value: aCount, label: 'A级人数' }
+      ]);
+      view.renderRows(tbody, filtered, renderPerformanceRow, { colspan: 8, text: '暂无绩效记录' });
+    }
+
+    function refresh() { render(); }
+
+    on(document.getElementById('add-btn'), 'click', () => openModal(null));
+    on(document.getElementById('modal-save'), 'click', saveModal);
+    on(document.getElementById('search-input'), 'input', refresh);
+    view.bindModalClose(closeModal);
+
+    delegate(tbody, '[data-action="edit"]', 'click', function() {
+      const item = store.sync().performance.find((p) => p.id === this.dataset.id);
+      if (item) openModal(item);
+    });
+    delegate(tbody, '[data-action="delete"]', 'click', function() {
+      view.confirmDelete('确认删除该绩效记录？', () => actions.deletePerformance(this.dataset.id), refresh);
+    });
 
     tbody.dataset.bound = '1';
+    render();
   }
 
   // 初始化招聘管理页。
@@ -234,38 +381,78 @@ employeeSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('recruit-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    // 刷新招聘计划统计和招聘计划列表。
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const errorEl = document.getElementById('form-error');
+    let editingId = null;
+
+    function openModal(data) {
+      editingId = data ? data.id : null;
+      titleEl.textContent = data ? '编辑招聘计划' : '发布职位';
+      document.getElementById('f-position').value = data ? data.position : '';
+      document.getElementById('f-dept').value = data ? data.dept : '人事部';
+      document.getElementById('f-headcount').value = data ? data.headcount : '1';
+      document.getElementById('f-status').value = data ? data.status : '招聘中';
+      document.getElementById('f-publishDate').value = data ? data.publishDate : '';
+      document.getElementById('f-deadline').value = data ? data.deadline : '';
+      errorEl.textContent = '';
+      addClass(overlay, 'active');
+    }
+
+    function closeModal() {
+      removeClass(overlay, 'active');
+      editingId = null;
+    }
+
+    function readForm() {
+      const position = view.getTrimmedValue('f-position');
+      if (!position) { errorEl.textContent = '请输入职位名称'; return null; }
+      return {
+        position: position,
+        dept: view.getTrimmedValue('f-dept'),
+        headcount: view.getValue('f-headcount'),
+        status: view.getValue('f-status'),
+        publishDate: view.getValue('f-publishDate'),
+        deadline: view.getValue('f-deadline')
+      };
+    }
+
+    function saveModal() {
+      const payload = readForm();
+      if (!payload) return;
+      if (editingId) {
+        actions.updateRecruitment(editingId, payload);
+      } else {
+        actions.createRecruitment(payload);
+      }
+      closeModal();
+      refresh();
+    }
+
     function render() {
       const list = store.sync().recruitment;
       renderers.stats([
-        { icon: '📋', value: list.length, label: '招聘计划' },
-        { icon: '🟢', value: list.filter((item) => item.status === '招聘中').length, label: '招聘中' },
-        { icon: '👤', value: list.reduce((sum, item) => sum + item.headcount, 0), label: '招聘总人数' },
-        { icon: '📨', value: list.reduce((sum, item) => sum + item.applicants, 0), label: '总投递数' }
+        { icon: 'clipboard-list', value: list.length, label: '招聘计划' },
+        { icon: 'circle-dot', value: list.filter((item) => item.status === '招聘中').length, label: '招聘中' },
+        { icon: 'user', value: list.reduce((sum, item) => sum + item.headcount, 0), label: '招聘总人数' },
+        { icon: 'mail', value: list.reduce((sum, item) => sum + item.applicants, 0), label: '总投递数' }
       ]);
-
       view.renderRows(tbody, list, renderRecruitmentRow, { colspan: 9, text: '暂无招聘计划' });
     }
 
-    on(document.getElementById('add-btn'), 'click', () => {
-      const payload = view.promptFields([
-        { name: 'position', label: '职位名称', required: true },
-        { name: 'dept', label: '所属部门', defaultValue: '人事部' },
-        { name: 'headcount', label: '招聘人数', defaultValue: '1' },
-        { name: 'status', label: '状态（招聘中/待发布/已完成）', defaultValue: '招聘中' }
-      ]);
-      if (!payload) return;
+    function refresh() { render(); }
 
-      actions.createRecruitment(payload);
-      render();
+    on(document.getElementById('add-btn'), 'click', () => openModal(null));
+    on(document.getElementById('modal-save'), 'click', saveModal);
+    view.bindModalClose(closeModal);
+
+    delegate(tbody, '[data-action="edit"]', 'click', function() {
+      const item = store.sync().recruitment.find((r) => r.id === this.dataset.id);
+      if (item) openModal(item);
     });
-
-    // 删除当前行的招聘计划。
-    function handleRecruitmentDelete() {
-      view.confirmDelete('确认删除该招聘计划？', () => actions.deleteRecruitment(this.dataset.id), render);
-    }
-
-    delegate(tbody, '[data-action="delete"]', 'click', handleRecruitmentDelete);
+    delegate(tbody, '[data-action="delete"]', 'click', function() {
+      view.confirmDelete('确认删除该招聘计划？', () => actions.deleteRecruitment(this.dataset.id), refresh);
+    });
 
     tbody.dataset.bound = '1';
     render();

@@ -25,7 +25,7 @@
           <div class="card-title">设备档案</div>
           <div class="toolbar-right">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="search-icon"><i class="ti ti-search"></i></span>
               <input type="text" id="search-input" placeholder="搜索设备名称/型号">
             </div>
           </div>
@@ -42,16 +42,55 @@
     </main>
   </div>
 
-  <!-- 详情弹窗 -->
+  <!-- 新增/编辑设备弹窗 -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title" id="modal-title">设备详情</div>
+        <div class="modal-title" id="modal-title">新增设备</div>
         <div class="modal-close" id="modal-close">✕</div>
       </div>
-      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-body">
+        <form id="equip-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">设备名称</label>
+              <input class="form-control" id="f-name" placeholder="请输入设备名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label">设备型号</label>
+              <input class="form-control" id="f-model" placeholder="请输入设备型号">
+            </div>
+            <div class="form-group">
+              <label class="form-label">设备位置</label>
+              <input class="form-control" id="f-location" placeholder="请输入设备位置">
+            </div>
+            <div class="form-group">
+              <label class="form-label">设备状态</label>
+              <select class="form-control" id="f-status">
+                <option value="运行中">运行中</option>
+                <option value="维修中">维修中</option>
+                <option value="停机">停机</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">购入日期</label>
+              <input class="form-control" type="date" id="f-purchaseDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">上次维护</label>
+              <input class="form-control" type="date" id="f-lastMaintain">
+            </div>
+            <div class="form-group">
+              <label class="form-label">下次维护</label>
+              <input class="form-control" type="date" id="f-nextMaintain">
+            </div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+        </form>
+      </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="modal-cancel">关闭</button>
+        <button class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
       </div>
     </div>
   </div>

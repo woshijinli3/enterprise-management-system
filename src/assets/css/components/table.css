@@ -1,129 +1,162 @@
-/* 表格外壳：桌面端允许横向滚动，避免宽业务表格挤压页面主体。 */
+/* 1.表格外壳：桌面端允许横向滚动，避免宽业务表格挤压页面主体。 */
 .table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
-  background: var(--color-bg-white);
-}
-
-/* 表格主体：统一业务列表的字号、表头、单元格边框和 hover 反馈。 */
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-base);
-}
-
-.table thead {
-  background: var(--color-bg);
-}
-
-.table th {
-  padding: 12px var(--spacing-md);
-  text-align: left;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  border-bottom: 1px solid var(--border-color);
-  white-space: nowrap;
-}
-
-.table td {
-  padding: 12px var(--spacing-md);
-  color: var(--color-text-primary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.table tbody tr:hover {
-  background: var(--color-primary-bg);
-}
-
-/* 行内操作区：编辑、删除、查看等按钮保持紧凑排列。 */
-.table-actions {
-  display: flex;
-  gap: var(--spacing-xs);
-}
-
-/* 状态标签：业务状态、风险等级和分类标记共用小胶囊样式。 */
-.badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-}
-
-.badge-success { background: #f6ffed; color: var(--color-success); }
-.badge-warning { background: #fffbe6; color: var(--color-warning); }
-.badge-danger { background: #fff1f0; color: var(--color-danger); }
-.badge-info { background: #e6f7ff; color: var(--color-info); }
-.badge-default { background: var(--color-bg); color: var(--color-text-secondary); }
-
-/* 移动端卡片表格：隐藏表头并用 td[data-label] 显示列名，提升窄屏可读性。 */
-@media (max-width: 768px) {
-  .table thead {
-    display: none;
-  }
-
-  .table-wrapper {
-    overflow-x: visible;
-  }
-
-  .table {
-    display: block;
-  }
-
-  .table tbody {
-    display: block;
-  }
-
-  .table tbody tr {
-    display: block;
-    margin-bottom: var(--spacing-md);
-    background: var(--color-bg-white);
+    width: 100%;
+    overflow-x: auto;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-sm);
-    padding: var(--spacing-md);
-    border: 1px solid var(--border-color);
-  }
-
-  .table tbody tr:last-child {
-    margin-bottom: 0;
-  }
-
-  .table tbody tr:hover {
     background: var(--color-bg-white);
-  }
+}
 
-  .table td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-xs) 0;
-    border-bottom: 1px solid var(--border-color);
-    text-align: right;
-  }
 
-  .table td:last-child {
-    border-bottom: none;
-  }
+/* 2.表格主体：统一业务列表的字号、表头、单元格边框和 hover 反馈。 */
+.table {
+    width: 100%;
+    border-collapse: collapse; /* 单元格边框合并 */
+    font-size: var(--font-size-base);
+}
 
-  .table td::before {
-    content: attr(data-label);
+/* ① 表头区域 */
+.table thead {
+    background: var(--color-bg);
+}
+
+/* ② 表头单元格 */
+.table th {
+    padding: 12px var(--spacing-md);
+    text-align: left;
     font-weight: 600;
     color: var(--color-text-secondary);
     font-size: var(--font-size-sm);
-    margin-right: var(--spacing-md);
-    text-align: left;
-    flex-shrink: 0;
-  }
+    border-bottom: 1px solid var(--border-color); /* 下边框 */
+    white-space: nowrap; /*表头文字不换行*/
+}
 
-  .table td .table-actions {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
+/* ③ 表格内容 */
+.table td {
+    padding: 12px var(--spacing-md);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ④ 最后一行无下边框 */
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ⑤ 表格行hover反馈 */
+.table tbody tr:hover {
+    background: var(--color-primary-bg);
+}
+
+
+/* 3.行内操作区：编辑、删除、查看等按钮保持紧凑排列。 */
+.table-actions {
+    display: flex; /* 横向排列 */
+    gap: var(--spacing-xs);
+}
+
+
+/* 4.状态标签：业务状态、风险等级和分类标记共用小胶囊样式。 */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+}
+
+.badge-success {
+    background: #f6ffed;
+    color: var(--color-success);
+}
+
+.badge-warning {
+    background: #fffbe6;
+    color: var(--color-warning);
+}
+
+.badge-danger {
+    background: #fff1f0;
+    color: var(--color-danger);
+}
+
+.badge-info {
+    background: #e6f7ff;
+    color: var(--color-info);
+}
+
+.badge-default {
+    background: var(--color-bg);
+    color: var(--color-text-secondary);
+}
+
+
+/* 5.移动端卡片表格：隐藏表头并用 td[data-label] 显示列名，提升窄屏可读性。 */
+@media (max-width: 768px) {
+    /*隐藏表头*/
+    .table thead {
+        display: none;
+    }
+
+    /*移动端不再横向滚动*/
+    .table-wrapper {
+        overflow-x: visible;
+    }
+
+    .table {
+        /*块级元素 独占一行*/
+        display: block;
+    }
+
+    /*移动端表格内容*/
+    .table tbody {
+        display: block;
+    }
+
+    .table tbody tr {
+        display: block;
+        margin-bottom: var(--spacing-md);
+        background: var(--color-bg-white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        padding: var(--spacing-md);
+        border: 1px solid var(--border-color);
+    }
+
+    .table tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .table tbody tr:hover {
+        background: var(--color-bg-white);
+    }
+
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-xs) 0;
+        border-bottom: 1px solid var(--border-color);
+        text-align: right;
+    }
+
+    .table td:last-child {
+        border-bottom: none;
+    }
+
+    .table td::before {
+        /*读取 HTML 里 td 的 data-label 作为左侧标签。*/
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        font-size: var(--font-size-sm);
+        margin-right: var(--spacing-md);
+        text-align: left;
+        flex-shrink: 0; /*让列名不收宽度 不被压缩*/
+    }
+
+    .table td .table-actions {
+        flex-wrap: wrap; /*子项不够宽时换行*/
+        justify-content: flex-end;
+    }
 }

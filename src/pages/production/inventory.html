@@ -17,14 +17,23 @@
           <div class="page-title">库存管理</div>
           <div class="page-subtitle">生产物料库存查看</div>
         </div>
+        <button class="btn btn-primary" id="add-btn">+ 新增物料</button>
       </div>
 
       <div class="card">
-        <div class="card-header"><div class="card-title">库存列表</div></div>
+        <div class="card-header">
+          <div class="card-title">库存列表</div>
+          <div class="toolbar-right">
+            <div class="search-box">
+              <span class="search-icon"><i class="ti ti-search"></i></span>
+              <input type="text" id="search-input" placeholder="搜索物料名称/规格">
+            </div>
+          </div>
+        </div>
         <div class="table-wrapper">
           <table class="table">
             <thead>
-              <tr><th>编号</th><th>物料名称</th><th>规格</th><th>单位</th><th>当前库存</th><th>需求量</th><th>库存状态</th></tr>
+              <tr><th>编号</th><th>物料名称</th><th>规格</th><th>单位</th><th>当前库存</th><th>需求量</th><th>库存状态</th><th>操作</th></tr>
             </thead>
             <tbody id="inventory-tbody"></tbody>
           </table>
@@ -32,6 +41,52 @@
       </div>
     </main>
   </div>
+
+  <!-- 新增/编辑库存物料弹窗 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">新增物料</div>
+        <div class="modal-close" id="modal-close">✕</div>
+      </div>
+      <div class="modal-body">
+        <form id="inventory-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">物料名称</label>
+              <input class="form-control" id="f-name" placeholder="请输入物料名称">
+            </div>
+            <div class="form-group">
+              <label class="form-label">规格</label>
+              <input class="form-control" id="f-spec" placeholder="请输入规格">
+            </div>
+            <div class="form-group">
+              <label class="form-label">单位</label>
+              <input class="form-control" id="f-unit" placeholder="请输入单位">
+            </div>
+            <div class="form-group">
+              <label class="form-label">需求量</label>
+              <input class="form-control" type="number" id="f-required" min="0" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">当前库存</label>
+              <input class="form-control" type="number" id="f-stock" min="0" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">短缺量</label>
+              <input class="form-control" type="number" id="f-shortage" min="0" placeholder="0">
+            </div>
+          </div>
+          <div class="form-error" id="form-error"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-save">保存</button>
+      </div>
+    </div>
+  </div>
+
 <script src="../../assets/js/main.js"></script>
 </body>
 </html>

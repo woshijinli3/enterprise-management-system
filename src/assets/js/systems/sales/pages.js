@@ -34,7 +34,7 @@ salesSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.city}</td>
         <td><span class="badge ${renderers.levelMap[item.level] || 'badge-default'}">${item.level}</span></td>
         <td>${formatMoney(item.totalAmount)}</td>
-        <td><div class="table-actions"><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
+        <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
       </tr>
     `;
   }
@@ -52,6 +52,7 @@ salesSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.createDate}</td>
         <td>${item.deliveryDate}</td>
         <td><span class="badge ${renderers.orderStatusMap[item.status] || 'badge-default'}">${item.status}</span></td>
+        <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
       </tr>
     `;
   }
@@ -67,6 +68,7 @@ salesSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.discount < 1 ? `<span class="badge badge-warning">${(item.discount * 10).toFixed(1)}折</span>` : '—'}</td>
         <td>${item.validFrom} ~ ${item.validTo}</td>
         <td><span class="badge badge-success">${item.status}</span></td>
+        <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
       </tr>
     `;
   }
@@ -114,10 +116,10 @@ salesSystem.pages = (function(store, actions, renderers, view) {
 
     const data = store.sync();
     renderers.stats([
-      { icon: '💰', value: formatMoney(data.orders.reduce((sum, item) => sum + item.amount, 0)), label: '本月销售额' },
-      { icon: '📋', value: data.orders.length, label: '订单总数' },
-      { icon: '✅', value: data.orders.filter((item) => item.status === '已完成').length, label: '已完成订单' },
-      { icon: '⭐', value: data.customers.filter((item) => item.level === 'VIP').length, label: 'VIP客户' }
+      { icon: 'currency-dollar', value: formatMoney(data.orders.reduce((sum, item) => sum + item.amount, 0)), label: '本月销售额' },
+      { icon: 'clipboard-list', value: data.orders.length, label: '订单总数' },
+      { icon: 'circle-check', value: data.orders.filter((item) => item.status === '已完成').length, label: '已完成订单' },
+      { icon: 'star', value: data.customers.filter((item) => item.level === 'VIP').length, label: 'VIP客户' }
     ]);
 
     view.renderRows(tbody, data.orders.slice(0, 5), renderSalesIndexRow, { colspan: 5, text: '暂无销售订单' });
@@ -130,19 +132,65 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('customer-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    // 渲染客户筛选结果。
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const form = document.getElementById('customer-form');
+    const errorEl = document.getElementById('form-error');
+    let editingId = null;
+
+    function openModal(data) {
+      editingId = data ? data.id : null;
+      titleEl.textContent = data ? '编辑客户' : '新增客户';
+      document.getElementById('f-name').value = data ? data.name : '';
+      document.getElementById('f-contact').value = data ? data.contact : '';
+      document.getElementById('f-phone').value = data ? data.phone : '';
+      document.getElementById('f-email').value = data ? data.email : '';
+      document.getElementById('f-city').value = data ? data.city : '';
+      document.getElementById('f-level').value = data ? data.level : '普通';
+      errorEl.textContent = '';
+      addClass(overlay, 'active');
+    }
+
+    function closeModal() {
+      removeClass(overlay, 'active');
+      editingId = null;
+    }
+
+    function readForm() {
+      const name = view.getTrimmedValue('f-name');
+      if (!name) { errorEl.textContent = '请输入客户名称'; return null; }
+      return {
+        name: name,
+        contact: view.getTrimmedValue('f-contact'),
+        phone: view.getTrimmedValue('f-phone'),
+        email: view.getTrimmedValue('f-email'),
+        city: view.getTrimmedValue('f-city'),
+        level: view.getValue('f-level')
+      };
+    }
+
+    function saveModal() {
+      const payload = readForm();
+      if (!payload) return;
+      if (editingId) {
+        actions.updateCustomer(editingId, payload);
+      } else {
+        actions.createCustomer(payload);
+      }
+      closeModal();
+      refresh();
+    }
+
     function render(list) {
       const customers = store.sync().customers;
       renderers.stats([
-        { icon: '🤝', value: customers.length, label: '客户总数' },
-        { icon: '⭐', value: customers.filter((item) => item.level === 'VIP').length, label: 'VIP客户' },
-        { icon: '💰', value: formatMoney(customers.reduce((sum, item) => sum + item.totalAmount, 0)), label: '累计销售额' }
+        { icon: 'user-handshake', value: customers.length, label: '客户总数' },
+        { icon: 'star', value: customers.filter((item) => item.level === 'VIP').length, label: 'VIP客户' },
+        { icon: 'currency-dollar', value: formatMoney(customers.reduce((sum, item) => sum + item.totalAmount, 0)), label: '累计销售额' }
       ]);
-
       view.renderRows(tbody, list, renderCustomerRow, { colspan: 8, text: '暂无客户' });
     }
 
-    // 刷新客户列表。
     function refresh() {
       const keyword = view.getTrimmedValue('search-input');
       const list = view.filterByKeyword(store.sync().customers, keyword, ['name', 'contact']);
@@ -150,26 +198,17 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     }
 
     on(document.getElementById('search-input'), 'input', refresh);
-    on(document.getElementById('add-btn'), 'click', () => {
-      const payload = view.promptFields([
-        { name: 'name', label: '客户名称', required: true },
-        { name: 'contact', label: '联系人', defaultValue: '销售负责人' },
-        { name: 'phone', label: '联系电话', defaultValue: '13900009999' },
-        { name: 'city', label: '所在城市', defaultValue: '北京' },
-        { name: 'level', label: '客户等级（VIP/重要/普通）', defaultValue: '普通' }
-      ]);
-      if (!payload) return;
+    on(document.getElementById('add-btn'), 'click', () => openModal(null));
+    on(document.getElementById('modal-save'), 'click', saveModal);
+    view.bindModalClose(closeModal);
 
-      actions.createCustomer(payload);
-      refresh();
+    delegate(tbody, '[data-action="edit"]', 'click', function() {
+      const item = store.sync().customers.find((c) => c.id === this.dataset.id);
+      if (item) openModal(item);
     });
-
-    // 删除当前行的客户档案。
-    function handleCustomerDelete() {
+    delegate(tbody, '[data-action="delete"]', 'click', function() {
       view.confirmDelete('确认删除该客户？', () => actions.deleteCustomer(this.dataset.id), refresh);
-    }
-
-    delegate(tbody, '[data-action="delete"]', 'click', handleCustomerDelete);
+    });
 
     tbody.dataset.bound = '1';
     refresh();
@@ -180,19 +219,66 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('order-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    // 渲染销售订单筛选结果。
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const errorEl = document.getElementById('form-error');
+    let editingId = null;
+
+    function openModal(data) {
+      editingId = data ? data.id : null;
+      titleEl.textContent = data ? '编辑订单' : '新建订单';
+      document.getElementById('f-customerName').value = data ? data.customerName : '';
+      document.getElementById('f-product').value = data ? data.product : '';
+      document.getElementById('f-quantity').value = data ? data.quantity : '';
+      document.getElementById('f-unitPrice').value = data ? data.unitPrice : '';
+      document.getElementById('f-status').value = data ? data.status : '待审核';
+      document.getElementById('f-deliveryDate').value = data ? data.deliveryDate : '';
+      errorEl.textContent = '';
+      addClass(overlay, 'active');
+    }
+
+    function closeModal() {
+      removeClass(overlay, 'active');
+      editingId = null;
+    }
+
+    function readForm() {
+      const customerName = view.getTrimmedValue('f-customerName');
+      const product = view.getTrimmedValue('f-product');
+      if (!customerName) { errorEl.textContent = '请输入客户名称'; return null; }
+      if (!product) { errorEl.textContent = '请输入产品名称'; return null; }
+      return {
+        customerName: customerName,
+        product: product,
+        quantity: view.getValue('f-quantity'),
+        unitPrice: view.getValue('f-unitPrice'),
+        status: view.getValue('f-status'),
+        deliveryDate: view.getValue('f-deliveryDate')
+      };
+    }
+
+    function saveModal() {
+      const payload = readForm();
+      if (!payload) return;
+      if (editingId) {
+        actions.updateOrder(editingId, payload);
+      } else {
+        actions.createOrder(payload);
+      }
+      closeModal();
+      refresh();
+    }
+
     function render(list) {
       const orders = store.sync().orders;
       renderers.stats([
-        { icon: '📋', value: orders.length, label: '订单总数' },
-        { icon: '💰', value: formatMoney(orders.reduce((sum, item) => sum + item.amount, 0)), label: '订单总额' },
-        { icon: '✅', value: orders.filter((item) => item.status === '已完成').length, label: '已完成' }
+        { icon: 'clipboard-list', value: orders.length, label: '订单总数' },
+        { icon: 'currency-dollar', value: formatMoney(orders.reduce((sum, item) => sum + item.amount, 0)), label: '订单总额' },
+        { icon: 'circle-check', value: orders.filter((item) => item.status === '已完成').length, label: '已完成' }
       ]);
-
-      view.renderRows(tbody, list, renderOrderRow, { colspan: 9, text: '暂无销售订单' });
+      view.renderRows(tbody, list, renderOrderRow, { colspan: 10, text: '暂无销售订单' });
     }
 
-    // 刷新销售订单列表。
     function refresh() {
       const keyword = view.getTrimmedValue('search-input');
       const status = view.getValue('status-filter');
@@ -203,18 +289,16 @@ salesSystem.pages = (function(store, actions, renderers, view) {
 
     on(document.getElementById('search-input'), 'input', refresh);
     on(document.getElementById('status-filter'), 'change', refresh);
-    on(document.getElementById('add-btn'), 'click', () => {
-      const payload = view.promptFields([
-        { name: 'customerName', label: '客户名称', required: true },
-        { name: 'product', label: '产品名称', required: true },
-        { name: 'quantity', label: '数量', defaultValue: '10' },
-        { name: 'unitPrice', label: '单价', defaultValue: '1000' },
-        { name: 'status', label: '状态（待审核/待发货/配送中/已完成）', defaultValue: '待审核' }
-      ]);
-      if (!payload) return;
+    on(document.getElementById('add-btn'), 'click', () => openModal(null));
+    on(document.getElementById('modal-save'), 'click', saveModal);
+    view.bindModalClose(closeModal);
 
-      actions.createOrder(payload);
-      refresh();
+    delegate(tbody, '[data-action="edit"]', 'click', function() {
+      const item = store.sync().orders.find((o) => o.id === this.dataset.id);
+      if (item) openModal(item);
+    });
+    delegate(tbody, '[data-action="delete"]', 'click', function() {
+      view.confirmDelete('确认删除该订单？', () => actions.deleteOrder(this.dataset.id), refresh);
     });
 
     tbody.dataset.bound = '1';
@@ -226,21 +310,68 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('pricing-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    // 刷新价格策略列表。
-    function render() {
-      view.renderRows(tbody, store.sync().pricing, renderPricingRow, { colspan: 7, text: '暂无价格策略' });
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const errorEl = document.getElementById('form-error');
+    let editingId = null;
+
+    function openModal(data) {
+      editingId = data ? data.id : null;
+      titleEl.textContent = data ? '编辑定价' : '新增定价';
+      document.getElementById('f-product').value = data ? data.product : '';
+      document.getElementById('f-standardPrice').value = data ? data.standardPrice : '';
+      document.getElementById('f-currentPrice').value = data ? data.currentPrice : '';
+      document.getElementById('f-validFrom').value = data ? data.validFrom : '';
+      document.getElementById('f-validTo').value = data ? data.validTo : '';
+      document.getElementById('f-status').value = data ? data.status : '生效中';
+      errorEl.textContent = '';
+      addClass(overlay, 'active');
     }
 
-    on(document.getElementById('add-btn'), 'click', () => {
-      const payload = view.promptFields([
-        { name: 'product', label: '产品名称', required: true },
-        { name: 'standardPrice', label: '标准价', defaultValue: '1000' },
-        { name: 'currentPrice', label: '执行价', defaultValue: '900' }
-      ]);
-      if (!payload) return;
+    function closeModal() {
+      removeClass(overlay, 'active');
+      editingId = null;
+    }
 
-      actions.createPricing(payload);
+    function readForm() {
+      const product = view.getTrimmedValue('f-product');
+      if (!product) { errorEl.textContent = '请输入产品名称'; return null; }
+      return {
+        product: product,
+        standardPrice: view.getValue('f-standardPrice'),
+        currentPrice: view.getValue('f-currentPrice'),
+        validFrom: view.getValue('f-validFrom'),
+        validTo: view.getValue('f-validTo'),
+        status: view.getValue('f-status')
+      };
+    }
+
+    function saveModal() {
+      const payload = readForm();
+      if (!payload) return;
+      if (editingId) {
+        actions.updatePricing(editingId, payload);
+      } else {
+        actions.createPricing(payload);
+      }
+      closeModal();
       render();
+    }
+
+    function render() {
+      view.renderRows(tbody, store.sync().pricing, renderPricingRow, { colspan: 8, text: '暂无价格策略' });
+    }
+
+    on(document.getElementById('add-btn'), 'click', () => openModal(null));
+    on(document.getElementById('modal-save'), 'click', saveModal);
+    view.bindModalClose(closeModal);
+
+    delegate(tbody, '[data-action="edit"]', 'click', function() {
+      const item = store.sync().pricing.find((p) => p.id === this.dataset.id);
+      if (item) openModal(item);
+    });
+    delegate(tbody, '[data-action="delete"]', 'click', function() {
+      view.confirmDelete('确认删除该定价策略？', () => actions.deletePricing(this.dataset.id), render);
     });
 
     tbody.dataset.bound = '1';
@@ -258,12 +389,43 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     const maxRevenue = Math.max.apply(null, monthly.map((item) => item.revenue).concat([0]));
 
     renderers.stats([
-      { icon: '💰', value: formatMoney(totalRevenue), label: '6个月总销售额' },
-      { icon: '📋', value: totalOrders, label: '6个月总订单数' },
-      { icon: '📈', value: formatMoney(maxRevenue), label: '单月最高销售额' }
+      { icon: 'currency-dollar', value: formatMoney(totalRevenue), label: '6个月总销售额' },
+      { icon: 'clipboard-list', value: totalOrders, label: '6个月总订单数' },
+      { icon: 'chart-line', value: formatMoney(maxRevenue), label: '单月最高销售额' }
     ]);
 
     view.renderRows(tbody, monthly, renderMonthlyReportRow(maxRevenue), { colspan: 5, text: '暂无销售报表' });
+
+    // 绘制月度销售额柱状图。
+    var revenueCanvas = document.getElementById('revenue-chart');
+    if (revenueCanvas && typeof EnterpriseCharts !== 'undefined') {
+      var rDraw = function() {
+        EnterpriseCharts.barChart(revenueCanvas, {
+          labels: monthly.map(function(m) { return m.month; }),
+          values: monthly.map(function(m) { return m.revenue; }),
+          colors: [getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#FF6B00']
+        });
+      };
+      rDraw();
+      EnterpriseCharts.autoResize(revenueCanvas, rDraw);
+    }
+
+    // 绘制月度订单数折线图。
+    var ordersCanvas = document.getElementById('orders-chart');
+    if (ordersCanvas && typeof EnterpriseCharts !== 'undefined') {
+      var oDraw = function() {
+        EnterpriseCharts.lineChart(ordersCanvas, {
+          labels: monthly.map(function(m) { return m.month; }),
+          datasets: [{
+            values: monthly.map(function(m) { return m.orders; }),
+            label: '订单数',
+            color: getComputedStyle(document.documentElement).getPropertyValue('--color-success').trim() || '#22c55e'
+          }]
+        });
+      };
+      oDraw();
+      EnterpriseCharts.autoResize(ordersCanvas, oDraw);
+    }
 
     tbody.dataset.bound = '1';
   }
@@ -279,10 +441,10 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     const avgRate = totalTarget ? ((totalAchieved / totalTarget) * 100).toFixed(1) : '0.0';
 
     renderers.stats([
-      { icon: '👥', value: team.length, label: '团队人数' },
-      { icon: '🎯', value: formatMoney(totalTarget), label: '团队目标' },
-      { icon: '💰', value: formatMoney(totalAchieved), label: '已完成' },
-      { icon: '📊', value: avgRate + '%', label: '平均完成率' }
+      { icon: 'users', value: team.length, label: '团队人数' },
+      { icon: 'target', value: formatMoney(totalTarget), label: '团队目标' },
+      { icon: 'currency-dollar', value: formatMoney(totalAchieved), label: '已完成' },
+      { icon: 'chart-bar', value: avgRate + '%', label: '平均完成率' }
     ]);
 
     view.renderRows(tbody, team, renderTeamRow, { colspan: 7, text: '暂无销售团队数据' });

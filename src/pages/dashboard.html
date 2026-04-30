@@ -5,60 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/x-icon" href="../assets/images/logo.ico">
 <title>仪表盘 - 小麦科技企业管理平台</title>
-  <link rel="stylesheet" href="../assets/css/main.css">
-  <style>
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--spacing-md);
-      margin-top: var(--spacing-lg);
-    }
-    .module-card {
-      background: var(--color-bg-white);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-sm);
-      padding: var(--spacing-lg);
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-md);
-      text-decoration: none;
-      transition: var(--transition);
-      border-left: 4px solid var(--color-primary);
-    }
-    .module-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
-    }
-    .module-card .icon {
-      font-size: 36px;
-      width: 56px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--color-primary-bg);
-      border-radius: var(--border-radius);
-    }
-    .module-card .info .name {
-      font-size: var(--font-size-lg);
-      font-weight: 600;
-      color: var(--color-text-primary);
-    }
-    .module-card .info .desc {
-      font-size: var(--font-size-sm);
-      color: var(--color-text-secondary);
-      margin-top: 4px;
-    }
-    .welcome-bar {
-      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-      border-radius: var(--border-radius);
-      padding: var(--spacing-lg) var(--spacing-xl);
-      color: #fff;
-      margin-bottom: var(--spacing-lg);
-    }
-    .welcome-bar h2 { color: #fff; font-size: var(--font-size-xl); }
-    .welcome-bar p  { color: rgba(255,255,255,0.8); margin: 4px 0 0; }
-  </style>
+<link rel="stylesheet" href="../assets/css/main.css">
 </head>
 <body>
   <div id="header-placeholder"></div>
@@ -68,55 +15,78 @@
 
     <main class="main-content">
       <div class="welcome-bar">
-        <h2>欢迎回来，<span id="welcome-name">管理员</span> 👋</h2>
+        <h2 id="welcome-greeting">欢迎回来，<span id="welcome-name">管理员</span> <i class="ti ti-wave-sawtooth"></i></h2>
         <p id="welcome-time"></p>
       </div>
 
+      <!-- 全局统计卡片 -->
+      <div class="dashboard-stats" id="dashboard-stats"></div>
+
+      <!-- 待办提醒 -->
+      <div class="dashboard-alerts" id="dashboard-alerts"></div>
+
+      <!-- 图表区域 -->
+      <div class="dashboard-charts">
+        <div class="chart-card">
+          <div class="chart-title">月度销售趋势</div>
+          <div class="chart-container">
+            <canvas id="sales-trend-chart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">设备状态分布</div>
+          <div class="chart-container">
+            <canvas id="equipment-status-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块导航 -->
       <div class="page-header">
         <div>
-          <div class="page-title">系统概览</div>
+          <div class="page-title">业务模块</div>
           <div class="page-subtitle">快速进入各业务子系统</div>
         </div>
       </div>
 
       <div class="dashboard-grid">
         <a href="production/index.html" class="module-card">
-          <div class="icon">🏭</div>
+          <div class="icon"><i class="ti ti-building-factory"></i></div>
           <div class="info">
             <div class="name">生产管理</div>
             <div class="desc">生产计划 · 任务排产 · 质量管理</div>
           </div>
         </a>
         <a href="sales/index.html" class="module-card">
-          <div class="icon">📈</div>
+          <div class="icon"><i class="ti ti-chart-line"></i></div>
           <div class="info">
             <div class="name">销售管理</div>
             <div class="desc">客户信息 · 销售订单 · 数据报表</div>
           </div>
         </a>
         <a href="equipment/index.html" class="module-card">
-          <div class="icon">⚙️</div>
+          <div class="icon"><i class="ti ti-settings"></i></div>
           <div class="info">
             <div class="name">设备管理</div>
             <div class="desc">状态监控 · 维护计划 · 故障记录</div>
           </div>
         </a>
         <a href="purchase/index.html" class="module-card">
-          <div class="icon">🛒</div>
+          <div class="icon"><i class="ti ti-shopping-cart"></i></div>
           <div class="info">
             <div class="name">采购管理</div>
             <div class="desc">供应商 · 采购流程 · 订单跟踪</div>
           </div>
         </a>
         <a href="warehouse/index.html" class="module-card">
-          <div class="icon">🏬</div>
+          <div class="icon"><i class="ti ti-building-warehouse"></i></div>
           <div class="info">
             <div class="name">仓储管理</div>
             <div class="desc">出入库 · 货位管理 · 库存预警</div>
           </div>
         </a>
         <a href="employee/index.html" class="module-card">
-          <div class="icon">👥</div>
+          <div class="icon"><i class="ti ti-users"></i></div>
           <div class="info">
             <div class="name">员工管理</div>
             <div class="desc">员工信息 · 考勤薪资 · 绩效评估</div>

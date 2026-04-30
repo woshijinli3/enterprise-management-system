@@ -23,7 +23,15 @@
 
       <!-- 预警列表 -->
       <div class="card">
-        <div class="card-header"><div class="card-title">⚠️ 库存不足预警</div></div>
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-alert-triangle"></i> 库存不足预警</div>
+          <div class="toolbar-right">
+            <div class="search-box">
+              <span class="search-icon"><i class="ti ti-search"></i></span>
+              <input type="text" id="search-input" placeholder="搜索物品名称/分类">
+            </div>
+          </div>
+        </div>
         <div class="table-wrapper">
           <table class="table">
             <thead>
@@ -36,7 +44,7 @@
 
       <!-- 库存充足列表 -->
       <div class="card" style="margin-top:var(--spacing-lg)">
-        <div class="card-header"><div class="card-title">✅ 库存正常</div></div>
+        <div class="card-header"><div class="card-title"><i class="ti ti-circle-check"></i> 库存正常</div></div>
         <div class="table-wrapper">
           <table class="table">
             <thead>
