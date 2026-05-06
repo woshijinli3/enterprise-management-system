@@ -31,7 +31,9 @@ src/assets/js/
 
 ```text
 shared/state.js
+shared/confirm-dialog.js
 shared/view.js
+shared/charts.js
 data/<domain>.js
 systems/<domain>/store.js
 systems/<domain>/actions.js
@@ -58,6 +60,7 @@ systems/<domain>/pages.js
 - `filterByKeyword`：统一处理员工、客户、供应商、订单列表搜索
 - `promptFields`：统一处理无后端原型中的新增记录采集
 - `confirmDelete`：统一处理业务记录删除确认和刷新回调
+- `createModalController`：统一处理业务弹窗标题、错误提示和编辑状态
 - `renderStats`、`renderBadge`、`renderProgress`：统一后台统计卡片、状态徽章和生产进度条
 
 业务页面只负责组织本页面的业务字段、事件绑定和刷新流程，不直接重复实现通用交互。

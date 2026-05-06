@@ -1,5 +1,7 @@
 # 企业管理系统前端：整体分析报告与 4 人团队开发策略
 
+> **历史说明**：本文档包含早期 `modules/` 迁移策略。当前代码已经采用 `systems/<domain>/store/actions/renderers/pages` 分层，新的维护规则以 `docs/JS_ARCHITECTURE.md` 为准。
+
 ## 1. 文档目的
 
 本文档将当前仓库的整体分析结论沉淀为正式文档，用于指导：

@@ -47,6 +47,10 @@ const PAGE_EXTRA_UTILS = {
   register: ['validate']
 };
 
+const PAGE_EXTRA_SHARED = {
+  dashboard: ['charts']
+};
+
 const SCRIPT_READY_TIMEOUT = 15000;
 
 /**
@@ -79,6 +83,9 @@ async function initSharedRuntime(pageMeta) {
   await appShell.loadPageShell(pageMeta);
   await appShell.ensureMobileNav(pageMeta);
   appShell.initSharedNavigation();
+
+  await loadRuntimeScript(pageMeta.rootPath + 'assets/js/shared/form-controls.js', 'shared-form-controls');
+  appFormControls.init();
 }
 
 /**
@@ -113,7 +120,9 @@ function getRuntimeReadyCheck(key) {
     'core-shell': () => !!window.appShell,
     'core-cursor': () => !!window.appCursor,
     'core-auth': () => !!window.auth,
-    'core-navigation': () => !!window.appNav
+    'core-navigation': () => !!window.appNav,
+    'shared-charts': () => !!window.EnterpriseCharts,
+    'shared-form-controls': () => !!window.appFormControls
   };
 
   if (key.startsWith('page-')) {
@@ -207,6 +216,11 @@ async function loadPageDependencies(pageMeta, controllerName) {
   const extraUtils = PAGE_EXTRA_UTILS[controllerName] || [];
   for (const name of extraUtils) {
     await loadRuntimeScript(pageMeta.rootPath + 'assets/js/utils/' + name + '.js', 'utils-' + name);
+  }
+
+  const extraShared = PAGE_EXTRA_SHARED[controllerName] || [];
+  for (const name of extraShared) {
+    await loadRuntimeScript(pageMeta.rootPath + 'assets/js/shared/' + name + '.js', 'shared-' + name);
   }
 
   await loadRuntimeScript(

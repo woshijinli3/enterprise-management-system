@@ -1,5 +1,5 @@
 /* 0.图标字体：Tabler Icons 全局引入，所有页面自动可用。 */
-@import 'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css';
+@import '../fonts/tabler/tabler-icons.min.css';
 
 /* 1.基础层：先加载重置、主题变量、排版和通用动画，保证后续组件可以复用统一令牌。 */
 /*① 清除默认样式*/

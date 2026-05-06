@@ -70,6 +70,15 @@
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
 }
 
+.login-logo {
+  margin-bottom: 24px;
+}
+
+.login-demo-account {
+  opacity: 0.6;
+  font-size: var(--font-size-sm);
+}
+
 .login-side-content h1 {
   font-size: 32px;
   margin-bottom: 16px;

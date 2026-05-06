@@ -52,9 +52,29 @@
     cursor: not-allowed;
 }
 
+.form-control--narrow {
+    width: 120px;
+}
+
+.form-group--wide {
+    grid-column: 1 / -1;
+}
+
 /* ④ 下拉框:表示可以展开 */
 select.form-control {
     cursor: pointer;
+}
+
+/* ⑤ 数字输入框：隐藏浏览器自带上下微调箭头，避免和自定义光标、表单动效视觉冲突。 */
+input.form-control[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+input.form-control[type="number"]::-webkit-outer-spin-button,
+input.form-control[type="number"]::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
 }
 
 
@@ -91,4 +111,393 @@ select.form-control {
     gap: var(--spacing-sm);
     justify-content: flex-end;
     margin-top: var(--spacing-lg);
+}
+
+
+/* 6.增强表单控件：原生控件继续承载 value，视觉层负责顺滑下拉和时间选择动效。 */
+.form-control--native-enhanced {
+    display: none !important;
+}
+
+.enhanced-select,
+.enhanced-date {
+    width: 100%;
+    min-width: 0;
+}
+
+.enhanced-control-trigger {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 38px 8px var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: var(--color-bg-white);
+    color: var(--color-text-primary);
+    font: inherit;
+    text-align: left;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+    transition:
+            border-color 0.18s ease,
+            box-shadow 0.22s ease,
+            transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+            background-color 0.18s ease;
+}
+
+.enhanced-control-trigger:hover {
+    border-color: rgba(255, 107, 0, 0.45);
+    background: linear-gradient(180deg, #fff 0%, #fffaf6 100%);
+}
+
+.enhanced-control-trigger:focus-visible,
+.enhanced-select.is-open .enhanced-control-trigger,
+.enhanced-date.is-open .enhanced-control-trigger {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.14), 0 10px 24px rgba(255, 107, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+.enhanced-control-trigger:disabled {
+    background: var(--color-bg);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.enhanced-control-trigger__value {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.enhanced-control-trigger__arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-65%) rotate(45deg);
+    transform-origin: center;
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), color 0.18s ease;
+}
+
+.enhanced-select.is-open .enhanced-control-trigger__arrow {
+    color: var(--color-primary);
+    transform: translateY(-35%) rotate(225deg);
+}
+
+.enhanced-select__panel,
+.enhanced-date__panel {
+    position: fixed;
+    z-index: 3000;
+    padding: 6px;
+    border: 1px solid rgba(235, 238, 245, 0.95);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 18px 42px rgba(24, 28, 35, 0.14), 0 4px 12px rgba(255, 107, 0, 0.08);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px) scale(0.98);
+    transform-origin: top center;
+    transition:
+            opacity 0.18s ease,
+            transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+            visibility 0s linear 0.18s;
+}
+
+.enhanced-select__panel.is-open,
+.enhanced-date__panel.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    transition:
+            opacity 0.18s ease,
+            transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+            visibility 0s;
+}
+
+.enhanced-select__panel.is-above,
+.enhanced-date__panel.is-above {
+    transform-origin: bottom center;
+}
+
+.enhanced-select__list {
+    max-height: 238px;
+    overflow-y: auto;
+    padding: 2px;
+}
+
+.enhanced-select__option {
+    width: 100%;
+    min-height: 34px;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-text-primary);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    transition:
+            background-color 0.16s ease,
+            color 0.16s ease,
+            transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.enhanced-select__option:hover,
+.enhanced-select__option:focus-visible {
+    background: var(--color-primary-bg);
+    color: var(--color-primary-dark);
+    outline: none;
+    transform: translateX(2px);
+}
+
+.enhanced-select__option.is-selected {
+    background: linear-gradient(90deg, rgba(255, 107, 0, 0.14) 0%, rgba(255, 107, 0, 0.06) 100%);
+    color: var(--color-primary-dark);
+    font-weight: 600;
+}
+
+.enhanced-select__option.is-selected::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--color-primary);
+}
+
+.enhanced-select__option.is-disabled {
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+}
+
+.enhanced-date__trigger {
+    padding-right: 42px;
+}
+
+.enhanced-date__icon {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    color: var(--color-text-primary);
+    font-size: 18px;
+    transform: translateY(-50%);
+    transition: color 0.18s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.enhanced-date.is-open .enhanced-date__icon {
+    color: var(--color-primary);
+    transform: translateY(-50%) scale(1.08);
+}
+
+.enhanced-date__panel {
+    padding: 10px;
+}
+
+.enhanced-date__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    margin-bottom: 8px;
+}
+
+.enhanced-date__title {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.enhanced-date__nav {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.16s ease, color 0.16s ease, transform 0.18s ease;
+}
+
+.enhanced-date__nav:hover,
+.enhanced-date__nav:focus-visible {
+    background: var(--color-primary-bg);
+    color: var(--color-primary);
+    outline: none;
+    transform: scale(1.04);
+}
+
+.enhanced-date__weekdays,
+.enhanced-date__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.enhanced-date__weekdays {
+    margin-bottom: 5px;
+    color: var(--color-text-disabled);
+    font-size: var(--font-size-xs);
+    text-align: center;
+}
+
+.enhanced-date__day,
+.enhanced-date__month {
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-text-primary);
+    font: inherit;
+    cursor: pointer;
+    transition:
+            background-color 0.16s ease,
+            color 0.16s ease,
+            transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+            box-shadow 0.18s ease;
+}
+
+.enhanced-date__day {
+    height: 32px;
+}
+
+.enhanced-date__day:hover,
+.enhanced-date__day:focus-visible,
+.enhanced-date__month:hover,
+.enhanced-date__month:focus-visible {
+    background: var(--color-primary-bg);
+    color: var(--color-primary-dark);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.enhanced-date__day.is-selected,
+.enhanced-date__month.is-selected {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    box-shadow: 0 8px 18px rgba(255, 107, 0, 0.24);
+}
+
+.enhanced-date__day.is-empty {
+    pointer-events: none;
+}
+
+.enhanced-date__months {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.enhanced-date__month {
+    min-height: 36px;
+}
+
+.enhanced-date__time {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.enhanced-date__time-column {
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 2px;
+}
+
+.enhanced-date__time-item {
+    width: 100%;
+    min-height: 30px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-text-primary);
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.16s ease, color 0.16s ease, transform 0.18s ease;
+}
+
+.enhanced-date__time-item:hover,
+.enhanced-date__time-item:focus-visible {
+    background: var(--color-primary-bg);
+    color: var(--color-primary-dark);
+    outline: none;
+    transform: translateX(2px);
+}
+
+.enhanced-date__time-item.is-selected {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    font-weight: 600;
+}
+
+.enhanced-date__footer {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.enhanced-date__time-select {
+    height: 32px;
+    min-width: 62px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: var(--color-bg-white);
+    color: var(--color-text-primary);
+    outline: none;
+}
+
+.enhanced-date__done {
+    margin-left: auto;
+    height: 32px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: var(--border-radius-sm);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    cursor: pointer;
+    transition: background-color 0.16s ease, transform 0.18s ease;
+}
+
+.enhanced-date__done:hover,
+.enhanced-date__done:focus-visible {
+    background: var(--color-primary-dark);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .enhanced-control-trigger,
+    .enhanced-control-trigger__arrow,
+    .enhanced-select__panel,
+    .enhanced-date__panel,
+    .enhanced-select__option,
+    .enhanced-date__day,
+    .enhanced-date__month,
+    .enhanced-date__time-item,
+    .enhanced-date__nav,
+    .enhanced-date__icon {
+        transition: none;
+        transform: none;
+    }
 }

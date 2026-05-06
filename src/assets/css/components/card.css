@@ -75,6 +75,54 @@
   margin-top: 2px;
 }
 
+.stat-card--link {
+  text-decoration: none;
+}
+
+.stat-value--section {
+  font-size: var(--font-size-lg);
+}
+
+.module-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.chart-box {
+  height: 260px;
+  padding: 16px;
+}
+
+.chart-box--lg {
+  height: 280px;
+}
+
+.chart-box--comfortable {
+  padding: var(--spacing-lg);
+}
+
+.u-mt-lg {
+  margin-top: var(--spacing-lg);
+}
+
+.u-mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+
+.toolbar-inline {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
 
 /* 3.技术卡片：落地页技术能力区使用相对定位，伪元素光扫层放在内容下方。 */
 .tech-card {

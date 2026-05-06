@@ -93,7 +93,7 @@ const EnterpriseView = (function() {
     if (!list.length && emptyOptions) {
       const colspan = emptyOptions.colspan || 1;
       const text = emptyOptions.text || '暂无数据';
-      tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center;color:var(--color-text-secondary);padding:var(--spacing-xl)">${text}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="${colspan}" class="table-empty-cell">${text}</td></tr>`;
       return;
     }
 
@@ -174,11 +174,23 @@ const EnterpriseView = (function() {
    * @returns {void}
    */
   function confirmDelete(message, deleteAction, afterDelete) {
-    if (!window.confirm(message)) return;
+    if (window.appConfirm && typeof window.appConfirm.danger === 'function') {
+      window.appConfirm.danger(message, {
+        onConfirm() {
+          deleteAction();
+          if (typeof afterDelete === 'function') {
+            afterDelete();
+          }
+        }
+      });
+      return;
+    }
 
-    deleteAction();
-    if (typeof afterDelete === 'function') {
-      afterDelete();
+    if (window.confirm(message)) {
+      deleteAction();
+      if (typeof afterDelete === 'function') {
+        afterDelete();
+      }
     }
   }
 
@@ -190,15 +202,68 @@ const EnterpriseView = (function() {
    * 原因：生产排产和其他进度型字段需要统一颜色阈值和数字展示。
    */
   function renderProgress(progress) {
-    const color = progress === 100 ? 'var(--color-success)' : progress >= 60 ? 'var(--color-primary)' : 'var(--color-warning)';
+    const colorClass = progress === 100 ? 'bg-success' : progress >= 60 ? 'bg-primary' : 'bg-warning';
     return `
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="flex:1;height:8px;background:var(--color-bg);border-radius:4px;overflow:hidden">
-          <div style="width:${progress}%;height:100%;background:${color};border-radius:4px"></div>
+      <div class="progress-inline">
+        <div class="progress-inline__track">
+          <div class="progress-inline__bar ${colorClass}" style="width:${progress}%"></div>
         </div>
-        <span style="font-size:var(--font-size-sm);color:var(--color-text-secondary);width:36px">${progress}%</span>
+        <span class="progress-inline__value">${progress}%</span>
       </div>
     `;
+  }
+
+  /**
+   * 创建通用业务弹窗控制器。
+   * @param {Object} options 弹窗配置。
+   * @param {string} [options.overlayId='modal-overlay'] 遮罩元素 id。
+   * @param {string} [options.titleId='modal-title'] 标题元素 id。
+   * @param {string} [options.errorId='form-error'] 错误提示元素 id。
+   * @param {string} options.createTitle 新增标题。
+   * @param {string} options.editTitle 编辑标题。
+   * @returns {Object} 弹窗控制 API。
+   */
+  function createModalController(options) {
+    const config = options || {};
+    const overlay = document.getElementById(config.overlayId || 'modal-overlay');
+    const titleEl = document.getElementById(config.titleId || 'modal-title');
+    const errorEl = document.getElementById(config.errorId || 'form-error');
+    let editingId = null;
+
+    function open(data) {
+      editingId = data ? data.id : null;
+      if (titleEl) {
+        titleEl.textContent = data ? config.editTitle : config.createTitle;
+      }
+      setError('');
+      addClass(overlay, 'active');
+    }
+
+    function close() {
+      removeClass(overlay, 'active');
+      editingId = null;
+      setError('');
+    }
+
+    function setError(message) {
+      if (errorEl) {
+        errorEl.textContent = message || '';
+      }
+    }
+
+    function getEditingId() {
+      return editingId;
+    }
+
+    return {
+      overlay,
+      titleEl,
+      errorEl,
+      open,
+      close,
+      setError,
+      getEditingId
+    };
   }
 
   /**
@@ -230,6 +295,7 @@ const EnterpriseView = (function() {
     promptFields,
     confirmDelete,
     renderProgress,
+    createModalController,
     bindModalClose
   };
 })();

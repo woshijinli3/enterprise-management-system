@@ -22,38 +22,38 @@
 
       <div class="stats-grid" id="stats-grid"></div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:var(--spacing-lg);margin-top:var(--spacing-lg)">
+      <div class="chart-grid">
         <div class="card">
           <div class="card-header"><div class="card-title">库存分类分布</div></div>
-          <div style="height:260px;padding:16px"><canvas id="category-chart"></canvas></div>
+          <div class="chart-box"><canvas id="category-chart"></canvas></div>
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">库存状态概览</div></div>
-          <div style="height:260px;padding:16px"><canvas id="stock-status-chart"></canvas></div>
+          <div class="chart-box"><canvas id="stock-status-chart"></canvas></div>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--spacing-md);margin-top:var(--spacing-lg)">
-        <a href="operation.html" class="stat-card" style="text-decoration:none">
+      <div class="module-entry-grid">
+        <a href="operation.html" class="stat-card stat-card--link">
           <div class="stat-icon"><i class="ti ti-package"></i></div>
-          <div class="stat-info"><div class="stat-value" style="font-size:var(--font-size-lg)">基本操作</div><div class="stat-label">出入库操作记录</div></div>
+          <div class="stat-info"><div class="stat-value stat-value--section">基本操作</div><div class="stat-label">出入库操作记录</div></div>
         </a>
-        <a href="layout.html" class="stat-card" style="text-decoration:none">
+        <a href="layout.html" class="stat-card stat-card--link">
           <div class="stat-icon"><i class="ti ti-map"></i></div>
-          <div class="stat-info"><div class="stat-value" style="font-size:var(--font-size-lg)">货位管理</div><div class="stat-label">仓库货位与容量</div></div>
+          <div class="stat-info"><div class="stat-value stat-value--section">货位管理</div><div class="stat-label">仓库货位与容量</div></div>
         </a>
-        <a href="warning.html" class="stat-card" style="text-decoration:none">
+        <a href="warning.html" class="stat-card stat-card--link">
           <div class="stat-icon"><i class="ti ti-alert-triangle"></i></div>
-          <div class="stat-info"><div class="stat-value" style="font-size:var(--font-size-lg)">库存预警</div><div class="stat-label">库存不足提醒</div></div>
+          <div class="stat-info"><div class="stat-value stat-value--section">库存预警</div><div class="stat-label">库存不足提醒</div></div>
         </a>
-        <a href="transport.html" class="stat-card" style="text-decoration:none">
+        <a href="transport.html" class="stat-card stat-card--link">
           <div class="stat-icon"><i class="ti ti-truck"></i></div>
-          <div class="stat-info"><div class="stat-value" style="font-size:var(--font-size-lg)">运输跟踪</div><div class="stat-label">出库运输状态</div></div>
+          <div class="stat-info"><div class="stat-value stat-value--section">运输跟踪</div><div class="stat-label">出库运输状态</div></div>
         </a>
       </div>
 
       <!-- 库存概览 -->
-      <div class="card" style="margin-top:var(--spacing-lg)">
+      <div class="card u-mt-lg">
         <div class="card-header">
           <div class="card-title">库存概览</div>
           <div class="toolbar-right">

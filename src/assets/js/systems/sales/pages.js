@@ -64,7 +64,7 @@ salesSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.id}</td>
         <td><strong>${item.product}</strong></td>
         <td>${formatMoney(item.standardPrice)}</td>
-        <td><strong style="color:var(--color-primary)">${formatMoney(item.currentPrice)}</strong></td>
+        <td><strong class="text-primary-strong">${formatMoney(item.currentPrice)}</strong></td>
         <td>${item.discount < 1 ? `<span class="badge badge-warning">${(item.discount * 10).toFixed(1)}折</span>` : '—'}</td>
         <td>${item.validFrom} ~ ${item.validTo}</td>
         <td><span class="badge badge-success">${item.status}</span></td>
@@ -132,33 +132,24 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('customer-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    const overlay = document.getElementById('modal-overlay');
-    const titleEl = document.getElementById('modal-title');
-    const form = document.getElementById('customer-form');
-    const errorEl = document.getElementById('form-error');
-    let editingId = null;
+    const modal = view.createModalController({
+      createTitle: '新增客户',
+      editTitle: '编辑客户'
+    });
 
     function openModal(data) {
-      editingId = data ? data.id : null;
-      titleEl.textContent = data ? '编辑客户' : '新增客户';
       document.getElementById('f-name').value = data ? data.name : '';
       document.getElementById('f-contact').value = data ? data.contact : '';
       document.getElementById('f-phone').value = data ? data.phone : '';
       document.getElementById('f-email').value = data ? data.email : '';
       document.getElementById('f-city').value = data ? data.city : '';
       document.getElementById('f-level').value = data ? data.level : '普通';
-      errorEl.textContent = '';
-      addClass(overlay, 'active');
-    }
-
-    function closeModal() {
-      removeClass(overlay, 'active');
-      editingId = null;
+      modal.open(data);
     }
 
     function readForm() {
       const name = view.getTrimmedValue('f-name');
-      if (!name) { errorEl.textContent = '请输入客户名称'; return null; }
+      if (!name) { modal.setError('请输入客户名称'); return null; }
       return {
         name: name,
         contact: view.getTrimmedValue('f-contact'),
@@ -172,19 +163,19 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     function saveModal() {
       const payload = readForm();
       if (!payload) return;
-      if (editingId) {
-        actions.updateCustomer(editingId, payload);
+      if (modal.getEditingId()) {
+        actions.updateCustomer(modal.getEditingId(), payload);
       } else {
         actions.createCustomer(payload);
       }
-      closeModal();
+      modal.close();
       refresh();
     }
 
     function render(list) {
       const customers = store.sync().customers;
       renderers.stats([
-        { icon: 'user-handshake', value: customers.length, label: '客户总数' },
+        { icon: 'heart-handshake', value: customers.length, label: '客户总数' },
         { icon: 'star', value: customers.filter((item) => item.level === 'VIP').length, label: 'VIP客户' },
         { icon: 'currency-dollar', value: formatMoney(customers.reduce((sum, item) => sum + item.totalAmount, 0)), label: '累计销售额' }
       ]);
@@ -200,7 +191,7 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     on(document.getElementById('search-input'), 'input', refresh);
     on(document.getElementById('add-btn'), 'click', () => openModal(null));
     on(document.getElementById('modal-save'), 'click', saveModal);
-    view.bindModalClose(closeModal);
+    view.bindModalClose(modal.close);
 
     delegate(tbody, '[data-action="edit"]', 'click', function() {
       const item = store.sync().customers.find((c) => c.id === this.dataset.id);
@@ -219,34 +210,26 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('order-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    const overlay = document.getElementById('modal-overlay');
-    const titleEl = document.getElementById('modal-title');
-    const errorEl = document.getElementById('form-error');
-    let editingId = null;
+    const modal = view.createModalController({
+      createTitle: '新建订单',
+      editTitle: '编辑订单'
+    });
 
     function openModal(data) {
-      editingId = data ? data.id : null;
-      titleEl.textContent = data ? '编辑订单' : '新建订单';
       document.getElementById('f-customerName').value = data ? data.customerName : '';
       document.getElementById('f-product').value = data ? data.product : '';
       document.getElementById('f-quantity').value = data ? data.quantity : '';
       document.getElementById('f-unitPrice').value = data ? data.unitPrice : '';
       document.getElementById('f-status').value = data ? data.status : '待审核';
       document.getElementById('f-deliveryDate').value = data ? data.deliveryDate : '';
-      errorEl.textContent = '';
-      addClass(overlay, 'active');
-    }
-
-    function closeModal() {
-      removeClass(overlay, 'active');
-      editingId = null;
+      modal.open(data);
     }
 
     function readForm() {
       const customerName = view.getTrimmedValue('f-customerName');
       const product = view.getTrimmedValue('f-product');
-      if (!customerName) { errorEl.textContent = '请输入客户名称'; return null; }
-      if (!product) { errorEl.textContent = '请输入产品名称'; return null; }
+      if (!customerName) { modal.setError('请输入客户名称'); return null; }
+      if (!product) { modal.setError('请输入产品名称'); return null; }
       return {
         customerName: customerName,
         product: product,
@@ -260,12 +243,12 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     function saveModal() {
       const payload = readForm();
       if (!payload) return;
-      if (editingId) {
-        actions.updateOrder(editingId, payload);
+      if (modal.getEditingId()) {
+        actions.updateOrder(modal.getEditingId(), payload);
       } else {
         actions.createOrder(payload);
       }
-      closeModal();
+      modal.close();
       refresh();
     }
 
@@ -291,7 +274,7 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     on(document.getElementById('status-filter'), 'change', refresh);
     on(document.getElementById('add-btn'), 'click', () => openModal(null));
     on(document.getElementById('modal-save'), 'click', saveModal);
-    view.bindModalClose(closeModal);
+    view.bindModalClose(modal.close);
 
     delegate(tbody, '[data-action="edit"]', 'click', function() {
       const item = store.sync().orders.find((o) => o.id === this.dataset.id);
@@ -310,32 +293,24 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('pricing-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    const overlay = document.getElementById('modal-overlay');
-    const titleEl = document.getElementById('modal-title');
-    const errorEl = document.getElementById('form-error');
-    let editingId = null;
+    const modal = view.createModalController({
+      createTitle: '新增定价',
+      editTitle: '编辑定价'
+    });
 
     function openModal(data) {
-      editingId = data ? data.id : null;
-      titleEl.textContent = data ? '编辑定价' : '新增定价';
       document.getElementById('f-product').value = data ? data.product : '';
       document.getElementById('f-standardPrice').value = data ? data.standardPrice : '';
       document.getElementById('f-currentPrice').value = data ? data.currentPrice : '';
       document.getElementById('f-validFrom').value = data ? data.validFrom : '';
       document.getElementById('f-validTo').value = data ? data.validTo : '';
       document.getElementById('f-status').value = data ? data.status : '生效中';
-      errorEl.textContent = '';
-      addClass(overlay, 'active');
-    }
-
-    function closeModal() {
-      removeClass(overlay, 'active');
-      editingId = null;
+      modal.open(data);
     }
 
     function readForm() {
       const product = view.getTrimmedValue('f-product');
-      if (!product) { errorEl.textContent = '请输入产品名称'; return null; }
+      if (!product) { modal.setError('请输入产品名称'); return null; }
       return {
         product: product,
         standardPrice: view.getValue('f-standardPrice'),
@@ -349,12 +324,12 @@ salesSystem.pages = (function(store, actions, renderers, view) {
     function saveModal() {
       const payload = readForm();
       if (!payload) return;
-      if (editingId) {
-        actions.updatePricing(editingId, payload);
+      if (modal.getEditingId()) {
+        actions.updatePricing(modal.getEditingId(), payload);
       } else {
         actions.createPricing(payload);
       }
-      closeModal();
+      modal.close();
       render();
     }
 
@@ -364,7 +339,7 @@ salesSystem.pages = (function(store, actions, renderers, view) {
 
     on(document.getElementById('add-btn'), 'click', () => openModal(null));
     on(document.getElementById('modal-save'), 'click', saveModal);
-    view.bindModalClose(closeModal);
+    view.bindModalClose(modal.close);
 
     delegate(tbody, '[data-action="edit"]', 'click', function() {
       const item = store.sync().pricing.find((p) => p.id === this.dataset.id);

@@ -12,6 +12,7 @@ const EnterpriseCharts = (function () {
     '#FF6B00', '#1890ff', '#52c41a', '#faad14', '#f5222d',
     '#722ed1', '#13c2c2', '#eb2f96', '#95de64', '#ffc53d'
   ];
+  var resizeObservers = new WeakMap();
 
   /*
    * 获取 CSS 变量值。
@@ -39,6 +40,42 @@ const EnterpriseCharts = (function () {
       return getCSSVar(color, COLORS[0]);
     }
     return color || COLORS[0];
+  }
+
+  /**
+   * 解析颜色列表，保证图表内部拿到的是浏览器可绘制颜色。
+   * @param {string[]} colors 原始颜色列表。
+   * @returns {string[]} 可绘制颜色列表。
+   */
+  function resolveColors(colors) {
+    return (colors && colors.length ? colors : COLORS).map(resolveColor);
+  }
+
+  /**
+   * 为颜色添加透明度。
+   * @param {string} color 原始颜色。
+   * @param {number} alpha 透明度。
+   * @returns {string} rgba 或原色。
+   */
+  function withAlpha(color, alpha) {
+    var resolved = resolveColor(color);
+    var hex = resolved.replace('#', '').trim();
+    var rgbMatch = resolved.match(/^rgba?\(([^)]+)\)$/i);
+
+    if (hex.length === 3) {
+      hex = hex.split('').map(function (part) { return part + part; }).join('');
+    }
+
+    if (hex.length === 6 && /^[0-9a-f]+$/i.test(hex)) {
+      return 'rgba(' + parseInt(hex.slice(0, 2), 16) + ',' + parseInt(hex.slice(2, 4), 16) + ',' + parseInt(hex.slice(4, 6), 16) + ',' + alpha + ')';
+    }
+
+    if (rgbMatch) {
+      var parts = rgbMatch[1].split(',').slice(0, 3).map(function (part) { return part.trim(); });
+      return 'rgba(' + parts.join(',') + ',' + alpha + ')';
+    }
+
+    return resolved;
   }
 
   /**
@@ -95,7 +132,7 @@ const EnterpriseCharts = (function () {
     var h = setup.h;
     var labels = config.labels || [];
     var values = config.values || [];
-    var colors = config.colors || COLORS;
+    var colors = resolveColors(config.colors);
     var title = config.title || '';
     var showValue = config.showValue !== false;
     var valuePrefix = config.valuePrefix || '';
@@ -150,7 +187,7 @@ const EnterpriseCharts = (function () {
       /* 渐变填充 */
       var grad = ctx.createLinearGradient(x, barY, x, padding.top + chartH);
       grad.addColorStop(0, color);
-      grad.addColorStop(1, color + '66');
+      grad.addColorStop(1, withAlpha(color, 0.4));
       ctx.fillStyle = grad;
 
       roundRect(ctx, x, barY, barWidth, barH, 4);
@@ -193,7 +230,7 @@ const EnterpriseCharts = (function () {
     var h = setup.h;
     var labels = config.labels || [];
     var values = config.values || [];
-    var colors = config.colors || COLORS;
+    var colors = resolveColors(config.colors);
     var title = config.title || '';
     var innerRadius = config.innerRadius != null ? config.innerRadius : 0.55;
     var showLegend = config.showLegend !== false;
@@ -314,12 +351,12 @@ const EnterpriseCharts = (function () {
     /* 规范化数据集 */
     var series = datasets.map(function (ds, idx) {
       if (Array.isArray(ds)) {
-        return { values: ds, label: '系列' + (idx + 1), color: COLORS[idx % COLORS.length] };
+        return { values: ds, label: '系列' + (idx + 1), color: resolveColor(COLORS[idx % COLORS.length]) };
       }
       return {
         values: ds.values || [],
         label: ds.label || '系列' + (idx + 1),
-        color: ds.color || COLORS[idx % COLORS.length]
+        color: resolveColor(ds.color || COLORS[idx % COLORS.length])
       };
     });
 
@@ -404,7 +441,7 @@ const EnterpriseCharts = (function () {
         points.forEach(function (pt) { ctx.lineTo(pt.x, pt.y); });
         ctx.lineTo(points[points.length - 1].x, padding.top + chartH);
         ctx.closePath();
-        ctx.fillStyle = s.color + '20';
+        ctx.fillStyle = withAlpha(s.color, 0.12);
         ctx.fill();
       }
 
@@ -475,15 +512,31 @@ const EnterpriseCharts = (function () {
   function autoResize(canvas, drawFn) {
     if (!window.ResizeObserver) return null;
 
+    destroy(canvas);
+
     var observer = new ResizeObserver(function () {
       drawFn();
     });
 
     if (canvas.parentElement) {
       observer.observe(canvas.parentElement);
+      resizeObservers.set(canvas, observer);
     }
 
     return observer;
+  }
+
+  /**
+   * 释放指定 canvas 的自动重绘监听。
+   * @param {HTMLCanvasElement} canvas 目标 canvas。
+   * @returns {void}
+   */
+  function destroy(canvas) {
+    var observer = resizeObservers.get(canvas);
+    if (observer) {
+      observer.disconnect();
+      resizeObservers.delete(canvas);
+    }
   }
 
   return {
@@ -491,6 +544,7 @@ const EnterpriseCharts = (function () {
     pieChart: pieChart,
     lineChart: lineChart,
     autoResize: autoResize,
+    destroy: destroy,
     COLORS: COLORS,
     getCSSVar: getCSSVar,
     formatAxisValue: formatAxisValue

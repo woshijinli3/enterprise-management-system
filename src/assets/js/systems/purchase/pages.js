@@ -76,11 +76,11 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
     }
 
     if (daysLeft < 0) {
-      return `<span style="color:var(--color-danger);font-weight:600">已逾期 ${Math.abs(daysLeft)} 天</span>`;
+      return `<span class="text-danger-strong">已逾期 ${Math.abs(daysLeft)} 天</span>`;
     }
 
     if (daysLeft <= 3) {
-      return `<span style="color:var(--color-warning);font-weight:600">${daysLeft} 天</span>`;
+      return `<span class="text-warning-strong">${daysLeft} 天</span>`;
     }
 
     return `${daysLeft} 天`;
@@ -160,7 +160,7 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
 
     const data = store.sync();
     renderers.stats([
-      { icon: 'user-handshake', value: data.suppliers.filter((item) => item.status === '合作中').length, label: '合作供应商' },
+      { icon: 'heart-handshake', value: data.suppliers.filter((item) => item.status === '合作中').length, label: '合作供应商' },
       { icon: 'clipboard-list', value: data.orders.length, label: '采购订单' },
       { icon: 'currency-dollar', value: formatMoney(data.orders.reduce((sum, item) => sum + item.amount, 0)), label: '采购总额' },
       { icon: 'circle-check', value: data.orders.filter((item) => item.status === '已到货').length, label: '已到货' }
@@ -176,32 +176,24 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('supplier-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    const overlay = document.getElementById('modal-overlay');
-    const titleEl = document.getElementById('modal-title');
-    const errorEl = document.getElementById('form-error');
-    let editingId = null;
+    const modal = view.createModalController({
+      createTitle: '新增供应商',
+      editTitle: '编辑供应商'
+    });
 
     function openModal(data) {
-      editingId = data ? data.id : null;
-      titleEl.textContent = data ? '编辑供应商' : '新增供应商';
       document.getElementById('f-name').value = data ? data.name : '';
       document.getElementById('f-contact').value = data ? data.contact : '';
       document.getElementById('f-phone').value = data ? data.phone : '';
       document.getElementById('f-category').value = data ? data.category : '原材料';
       document.getElementById('f-rating').value = data ? data.rating : '3';
       document.getElementById('f-status').value = data ? data.status : '合作中';
-      errorEl.textContent = '';
-      addClass(overlay, 'active');
-    }
-
-    function closeModal() {
-      removeClass(overlay, 'active');
-      editingId = null;
+      modal.open(data);
     }
 
     function readForm() {
       const name = view.getTrimmedValue('f-name');
-      if (!name) { errorEl.textContent = '请输入供应商名称'; return null; }
+      if (!name) { modal.setError('请输入供应商名称'); return null; }
       return {
         name: name,
         contact: view.getTrimmedValue('f-contact'),
@@ -215,12 +207,12 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
     function saveModal() {
       const payload = readForm();
       if (!payload) return;
-      if (editingId) {
-        actions.updateSupplier(editingId, payload);
+      if (modal.getEditingId()) {
+        actions.updateSupplier(modal.getEditingId(), payload);
       } else {
         actions.createSupplier(payload);
       }
-      closeModal();
+      modal.close();
       refresh();
     }
 
@@ -229,7 +221,7 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
       const suppliers = store.sync().suppliers;
       const active = suppliers.filter((item) => item.status === '合作中').length;
       renderers.stats([
-        { icon: 'user-handshake', value: suppliers.length, label: '供应商总数' },
+        { icon: 'heart-handshake', value: suppliers.length, label: '供应商总数' },
         { icon: 'circle-check', value: active, label: '合作中' },
         { icon: 'player-pause', value: suppliers.length - active, label: '已暂停' }
       ]);
@@ -247,7 +239,7 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
     on(document.getElementById('search-input'), 'input', refresh);
     on(document.getElementById('add-btn'), 'click', () => openModal(null));
     on(document.getElementById('modal-save'), 'click', saveModal);
-    view.bindModalClose(closeModal);
+    view.bindModalClose(modal.close);
 
     delegate(tbody, '[data-action="edit"]', 'click', function() {
       const item = store.sync().suppliers.find((s) => s.id === this.dataset.id);
@@ -266,14 +258,12 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
     const tbody = document.getElementById('order-tbody');
     if (!tbody || tbody.dataset.bound === '1') return;
 
-    const overlay = document.getElementById('modal-overlay');
-    const titleEl = document.getElementById('modal-title');
-    const errorEl = document.getElementById('form-error');
-    let editingId = null;
+    const modal = view.createModalController({
+      createTitle: '新建采购单',
+      editTitle: '编辑采购单'
+    });
 
     function openModal(data) {
-      editingId = data ? data.id : null;
-      titleEl.textContent = data ? '编辑采购单' : '新建采购单';
       document.getElementById('f-supplierName').value = data ? data.supplierName : '';
       document.getElementById('f-item').value = data ? data.item : '';
       document.getElementById('f-quantity').value = data ? data.quantity : '';
@@ -281,20 +271,14 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
       document.getElementById('f-unitPrice').value = data ? data.unitPrice : '';
       document.getElementById('f-status').value = data ? data.status : '待审核';
       document.getElementById('f-deliveryDate').value = data ? data.deliveryDate : '';
-      errorEl.textContent = '';
-      addClass(overlay, 'active');
-    }
-
-    function closeModal() {
-      removeClass(overlay, 'active');
-      editingId = null;
+      modal.open(data);
     }
 
     function readForm() {
       const supplierName = view.getTrimmedValue('f-supplierName');
       const item = view.getTrimmedValue('f-item');
-      if (!supplierName) { errorEl.textContent = '请输入供应商名称'; return null; }
-      if (!item) { errorEl.textContent = '请输入采购物料'; return null; }
+      if (!supplierName) { modal.setError('请输入供应商名称'); return null; }
+      if (!item) { modal.setError('请输入采购物料'); return null; }
       return {
         supplierName: supplierName,
         item: item,
@@ -309,12 +293,12 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
     function saveModal() {
       const payload = readForm();
       if (!payload) return;
-      if (editingId) {
-        actions.updateOrder(editingId, payload);
+      if (modal.getEditingId()) {
+        actions.updateOrder(modal.getEditingId(), payload);
       } else {
         actions.createOrder(payload);
       }
-      closeModal();
+      modal.close();
       refresh();
     }
 
@@ -343,7 +327,7 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
     on(document.getElementById('status-filter'), 'change', refresh);
     on(document.getElementById('add-btn'), 'click', () => openModal(null));
     on(document.getElementById('modal-save'), 'click', saveModal);
-    view.bindModalClose(closeModal);
+    view.bindModalClose(modal.close);
 
     delegate(tbody, '[data-action="edit"]', 'click', function() {
       const item = store.sync().orders.find((o) => o.id === this.dataset.id);
@@ -369,7 +353,7 @@ purchaseSystem.pages = (function(store, actions, renderers, view) {
 
       renderers.stats([
         { icon: 'truck', value: orders.filter((item) => item.status === '运输中').length, label: '运输中' },
-        { icon: '⏳', value: orders.filter((item) => item.status === '待发货' || item.status === '待审核').length, label: '待发货/待审核' },
+        { icon: 'hourglass', value: orders.filter((item) => item.status === '待发货' || item.status === '待审核').length, label: '待发货/待审核' },
         { icon: 'circle-check', value: orders.filter((item) => item.status === '已到货').length, label: '已到货' }
       ]);
 

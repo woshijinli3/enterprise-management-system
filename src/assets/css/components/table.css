@@ -90,6 +90,90 @@
     color: var(--color-text-secondary);
 }
 
+.table-empty-cell {
+    text-align: center;
+    color: var(--color-text-secondary);
+    padding: var(--spacing-xl);
+}
+
+.table-cell-description {
+    max-width: 260px;
+    color: var(--color-text-secondary);
+}
+
+.text-muted-cell {
+    color: var(--color-text-secondary);
+}
+
+.text-danger {
+    color: var(--color-danger);
+}
+
+.text-danger-strong {
+    color: var(--color-danger);
+    font-weight: 600;
+}
+
+.text-warning-strong {
+    color: var(--color-warning);
+    font-weight: 600;
+}
+
+.text-primary-strong {
+    color: var(--color-primary);
+}
+
+.star-warning {
+    color: var(--color-warning);
+}
+
+.star-disabled {
+    color: var(--color-text-disabled);
+}
+
+.chart-empty {
+    text-align: center;
+    color: var(--color-text-secondary);
+    padding: 60px 0;
+}
+
+.progress-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.progress-inline__track {
+    flex: 1;
+    height: 8px;
+    background: var(--color-bg);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-inline__bar {
+    height: 100%;
+    border-radius: 4px;
+}
+
+.progress-inline__value {
+    width: 36px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.bg-success {
+    background: var(--color-success);
+}
+
+.bg-primary {
+    background: var(--color-primary);
+}
+
+.bg-warning {
+    background: var(--color-warning);
+}
+
 
 /* 5.移动端卡片表格：隐藏表头并用 td[data-label] 显示列名，提升窄屏可读性。 */
 @media (max-width: 768px) {

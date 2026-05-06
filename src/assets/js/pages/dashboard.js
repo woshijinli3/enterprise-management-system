@@ -41,48 +41,16 @@ window.appPages.dashboard = (function() {
 
   /**
    * 初始化仪表盘。
-   * 先确保图表库已加载，再初始化 store 和图表。
+   * 图表库由 main.js 的页面依赖统一加载，这里只负责初始化数据与页面内容。
    * @returns {void}
    */
   function init() {
     initWelcome();
-    ensureCharts(function() {
-      ensureStores(function() {
-        initStats();
-        initAlerts();
-        initCharts();
-      });
+    ensureStores(function() {
+      initStats();
+      initAlerts();
+      initCharts();
     });
-  }
-
-  /**
-   * 确保图表模块已加载。
-   * 无论 localStorage 是否已有数据，都必须在调用 initCharts 前加载 charts.js。
-   * @param {Function} callback 图表模块就绪后的回调。
-   * @returns {void}
-   */
-  function ensureCharts(callback) {
-    if (typeof EnterpriseCharts !== 'undefined') {
-      callback();
-      return;
-    }
-
-    var existing = document.querySelector('script[src*="charts.js"]');
-    if (existing) {
-      if (typeof EnterpriseCharts !== 'undefined') {
-        callback();
-      } else {
-        existing.addEventListener('load', callback);
-      }
-      return;
-    }
-
-    var s = document.createElement('script');
-    s.src = '../assets/js/shared/charts.js';
-    s.dataset.runtimeScript = 'shared-charts';
-    s.onload = callback;
-    s.onerror = callback;
-    document.body.appendChild(s);
   }
 
   /**
@@ -235,7 +203,7 @@ window.appPages.dashboard = (function() {
 
     if (welcomeGreeting) {
       var name = user ? user.username : '管理员';
-      welcomeGreeting.innerHTML = greeting + '，<span id="welcome-name">' + name + '</span> ' + renderIcon('👋');
+      welcomeGreeting.innerHTML = greeting + '，<span id="welcome-name">' + name + '</span> ' + renderIcon('wave-sine');
     }
 
     if (welcomeTime) {
@@ -375,7 +343,7 @@ window.appPages.dashboard = (function() {
     }
 
     alertsEl.innerHTML =
-      '<div class="alerts-title">' + renderIcon('📌') + ' 待办提醒</div>' +
+      '<div class="alerts-title">' + renderIcon('pin') + ' 待办提醒</div>' +
       '<div class="alerts-list">' +
       alerts.map(function(a) {
         return '<span class="alert-tag alert-' + a.type + '">' + a.text + '</span>';
@@ -425,7 +393,8 @@ window.appPages.dashboard = (function() {
 
     if (!monthly.length) {
       var parent = canvas.parentElement;
-      if (parent) parent.innerHTML = '<div style="text-align:center;color:var(--color-text-secondary);padding:60px 0">暂无销售数据</div>';
+      EnterpriseCharts.destroy(canvas);
+      if (parent) parent.innerHTML = '<div class="chart-empty">暂无销售数据</div>';
       return;
     }
 
@@ -466,7 +435,8 @@ window.appPages.dashboard = (function() {
 
     if (!equipment.length) {
       var parent = canvas.parentElement;
-      if (parent) parent.innerHTML = '<div style="text-align:center;color:var(--color-text-secondary);padding:60px 0">暂无设备数据</div>';
+      EnterpriseCharts.destroy(canvas);
+      if (parent) parent.innerHTML = '<div class="chart-empty">暂无设备数据</div>';
       return;
     }
 

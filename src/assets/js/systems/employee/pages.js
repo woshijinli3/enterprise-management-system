@@ -110,7 +110,7 @@ employeeSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.period}</td>
         <td><strong>${item.score}</strong></td>
         <td><span class="badge ${renderers.gradeMap[item.grade] || 'badge-default'}">${item.grade}</span></td>
-        <td style="color:var(--color-text-secondary)">${item.comment}</td>
+        <td class="text-muted-cell">${item.comment}</td>
         <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
       </tr>
     `;

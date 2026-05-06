@@ -19,7 +19,7 @@ warehouseSystem.pages = (function(store, actions, renderers, view) {
         <td><strong>${item.name}</strong></td>
         <td>${item.category}</td>
         <td>${item.location}</td>
-        <td>${low ? `<span style="color:var(--color-danger);font-weight:600">${item.stock}</span>` : item.stock} ${item.unit}</td>
+        <td>${low ? `<span class="text-danger-strong">${item.stock}</span>` : item.stock} ${item.unit}</td>
         <td>${item.minStock} ${item.unit}</td>
         <td><span class="badge ${low ? 'badge-danger' : 'badge-success'}">${low ? '库存不足' : '正常'}</span></td>
         <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
@@ -144,9 +144,9 @@ warehouseSystem.pages = (function(store, actions, renderers, view) {
         <td><strong>${item.name}</strong></td>
         <td>${item.category}</td>
         <td>${item.spec}</td>
-        <td><span style="color:var(--color-danger);font-weight:600">${item.stock} ${item.unit}</span></td>
+        <td><span class="text-danger-strong">${item.stock} ${item.unit}</span></td>
         <td>${item.minStock} ${item.unit}</td>
-        <td><span style="color:var(--color-danger);font-weight:600">${gap} ${item.unit}</span></td>
+        <td><span class="text-danger-strong">${gap} ${item.unit}</span></td>
         <td><span class="badge ${urgency === '紧急' ? 'badge-danger' : 'badge-warning'}">${urgency}</span></td>
       </tr>
     `;
@@ -230,7 +230,7 @@ warehouseSystem.pages = (function(store, actions, renderers, view) {
         { icon: 'package', value: data.inventory.length, label: '库存品类' },
         { icon: 'alert-triangle', value: data.inventory.filter((item) => item.stock < item.minStock).length, label: '库存预警' },
         { icon: 'inbox', value: data.inbound.length, label: '近期入库' },
-        { icon: 'outbox', value: data.outbound.length, label: '近期出库' }
+        { icon: 'transfer-out', value: data.outbound.length, label: '近期出库' }
       ]);
       view.renderRows(tbody, list || inventory, renderInventoryRow, { colspan: 8, text: '暂无库存数据' });
 
@@ -400,7 +400,7 @@ warehouseSystem.pages = (function(store, actions, renderers, view) {
 
       renderers.stats([
         { icon: 'inbox', value: data.inbound.length, label: '入库单数' },
-        { icon: 'outbox', value: data.outbound.length, label: '出库单数' },
+        { icon: 'transfer-out', value: data.outbound.length, label: '出库单数' },
         { icon: 'package', value: data.inbound.reduce((sum, item) => sum + item.quantity, 0), label: '入库总量' },
         { icon: 'truck', value: data.outbound.reduce((sum, item) => sum + item.quantity, 0), label: '出库总量' }
       ]);
@@ -443,7 +443,7 @@ warehouseSystem.pages = (function(store, actions, renderers, view) {
       const inbound = keyword ? view.filterByKeyword(data.inbound, keyword, ['item', 'supplier']) : data.inbound;
 
       renderers.stats([
-        { icon: 'outbox', value: data.outbound.length, label: '出库单数' },
+        { icon: 'transfer-out', value: data.outbound.length, label: '出库单数' },
         { icon: 'truck', value: data.outbound.reduce((sum, item) => sum + item.quantity, 0), label: '出库总量' },
         { icon: 'inbox', value: data.inbound.length, label: '入库单数' },
         { icon: 'package', value: data.inbound.reduce((sum, item) => sum + item.quantity, 0), label: '入库总量' }

@@ -181,7 +181,16 @@ JS 入口文件。
 页面级控制器目录，承载 landing、login、register、dashboard 等非业务域页面的交互入口。
 
 ### `src/assets/js/shared/`
-跨业务域复用的状态与展示工具，例如 localStorage 状态容器、统计卡片、徽章、进度条、弹窗关闭绑定等。
+跨业务域复用的状态与展示工具，例如 localStorage 状态容器、确认弹窗、统计卡片、徽章、进度条、图表工具、弹窗控制器和弹窗关闭绑定等。
+
+业务系统共享脚本由 `core/module-loader.js` 统一加载，当前顺序为：
+
+```text
+shared/state.js
+shared/confirm-dialog.js
+shared/view.js
+shared/charts.js
+```
 
 ### `src/assets/js/systems/<domain>/`
 业务域真实实现目录。每个业务域按 `store.js`、`actions.js`、`renderers.js`、`pages.js` 拆分，分别负责状态、业务操作、展示辅助和页面事件绑定。

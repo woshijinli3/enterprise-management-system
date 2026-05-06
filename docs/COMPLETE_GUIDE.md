@@ -1,5 +1,7 @@
 # 小麦科技企业管理平台 — 零基础完全指南
 
+> **历史说明**：本文档仍包含早期 `src/assets/js/modules/` 写法示例。当前真实业务实现以 `src/assets/js/systems/<domain>/` 和 `docs/JS_ARCHITECTURE.md` 为准。
+
 > **本文档适合谁读？**
 > 
 > 如果你：
@@ -2430,4 +2432,3 @@ JavaScript 代码在执行时会依赖其他文件：
 3. 然后执行 JS，可以安全地操作 DOM
 
 ---
-

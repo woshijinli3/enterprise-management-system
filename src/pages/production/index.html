@@ -21,46 +21,46 @@
 
       <div class="stats-grid" id="stats-grid"></div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:var(--spacing-lg);margin-top:var(--spacing-lg)">
+      <div class="chart-grid">
         <div class="card">
           <div class="card-header"><div class="card-title">订单状态分布</div></div>
-          <div style="height:260px;padding:16px"><canvas id="order-status-chart"></canvas></div>
+          <div class="chart-box"><canvas id="order-status-chart"></canvas></div>
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">计划进度概览</div></div>
-          <div style="height:260px;padding:16px"><canvas id="plan-progress-chart"></canvas></div>
+          <div class="chart-box"><canvas id="plan-progress-chart"></canvas></div>
         </div>
       </div>
 
-      <div class="dashboard-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--spacing-md);margin-top:var(--spacing-lg)">
-        <a href="plan.html" class="stat-card" style="text-decoration:none">
+      <div class="dashboard-grid module-entry-grid">
+        <a href="plan.html" class="stat-card stat-card--link">
           <div class="stat-icon"><i class="ti ti-calendar"></i></div>
-          <div class="stat-info"><div class="stat-value" style="font-size:var(--font-size-lg)">生产计划</div><div class="stat-label">制定与管理生产计划</div></div>
+          <div class="stat-info"><div class="stat-value stat-value--section">生产计划</div><div class="stat-label">制定与管理生产计划</div></div>
         </a>
-        <a href="scheduling.html" class="stat-card" style="text-decoration:none">
+        <a href="scheduling.html" class="stat-card stat-card--link">
           <div class="stat-icon"><i class="ti ti-calendar-event"></i></div>
-          <div class="stat-info"><div class="stat-value" style="font-size:var(--font-size-lg)">任务排产</div><div class="stat-label">生产任务分配与进度</div></div>
+          <div class="stat-info"><div class="stat-value stat-value--section">任务排产</div><div class="stat-label">生产任务分配与进度</div></div>
         </a>
-        <a href="material.html" class="stat-card" style="text-decoration:none">
+        <a href="material.html" class="stat-card stat-card--link">
           <div class="stat-icon"><i class="ti ti-package"></i></div>
-          <div class="stat-info"><div class="stat-value" style="font-size:var(--font-size-lg)">物料需求</div><div class="stat-label">物料需求计划管理</div></div>
+          <div class="stat-info"><div class="stat-value stat-value--section">物料需求</div><div class="stat-label">物料需求计划管理</div></div>
         </a>
-        <a href="order.html" class="stat-card" style="text-decoration:none">
+        <a href="order.html" class="stat-card stat-card--link">
           <div class="stat-icon"><i class="ti ti-clipboard-list"></i></div>
-          <div class="stat-info"><div class="stat-value" style="font-size:var(--font-size-lg)">生产订单</div><div class="stat-label">生产订单跟踪管理</div></div>
+          <div class="stat-info"><div class="stat-value stat-value--section">生产订单</div><div class="stat-label">生产订单跟踪管理</div></div>
         </a>
-        <a href="quality.html" class="stat-card" style="text-decoration:none">
+        <a href="quality.html" class="stat-card stat-card--link">
           <div class="stat-icon"><i class="ti ti-circle-check"></i></div>
-          <div class="stat-info"><div class="stat-value" style="font-size:var(--font-size-lg)">质量管理</div><div class="stat-label">质检记录与分析</div></div>
+          <div class="stat-info"><div class="stat-value stat-value--section">质量管理</div><div class="stat-label">质检记录与分析</div></div>
         </a>
-        <a href="inventory.html" class="stat-card" style="text-decoration:none">
+        <a href="inventory.html" class="stat-card stat-card--link">
           <div class="stat-icon"><i class="ti ti-building-factory"></i></div>
-          <div class="stat-info"><div class="stat-value" style="font-size:var(--font-size-lg)">库存管理</div><div class="stat-label">生产库存查看</div></div>
+          <div class="stat-info"><div class="stat-value stat-value--section">库存管理</div><div class="stat-label">生产库存查看</div></div>
         </a>
       </div>
 
       <!-- 任务进度概览 -->
-      <div class="card" style="margin-top:var(--spacing-lg)">
+      <div class="card u-mt-lg">
         <div class="card-header">
           <div class="card-title">当前任务进度</div>
         </div>

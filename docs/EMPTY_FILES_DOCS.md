@@ -1,5 +1,7 @@
 # 空文件说明文档
 
+> **历史说明**：本文档记录早期 `src/assets/js/modules/` 占位文件规划。当前业务模块已迁移到 `src/assets/js/systems/<domain>/`，维护时优先参考 `docs/JS_ARCHITECTURE.md`。
+
 本文档详细说明项目中空文件的用途、当前状态和建议用法。
 
 ---

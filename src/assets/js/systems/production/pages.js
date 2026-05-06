@@ -54,7 +54,7 @@ productionSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.unit}</td>
         <td>${item.required}</td>
         <td>${item.stock}</td>
-        <td>${item.shortage > 0 ? `<span style="color:var(--color-danger);font-weight:600">${item.shortage}</span>` : '—'}</td>
+        <td>${item.shortage > 0 ? `<span class="text-danger-strong">${item.shortage}</span>` : '—'}</td>
         <td><span class="badge ${item.shortage > 0 ? 'badge-danger' : 'badge-success'}">${item.shortage > 0 ? '短缺' : '充足'}</span></td>
         <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
       </tr>
@@ -116,7 +116,7 @@ productionSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.orderId}</td>
         <td>${item.inspector}</td>
         <td>${item.date}</td>
-        <td>${item.defects > 0 ? `<span style="color:var(--color-danger)">${item.defects}</span>` : '0'}</td>
+        <td>${item.defects > 0 ? `<span class="text-danger">${item.defects}</span>` : '0'}</td>
         <td><span class="badge ${item.result === '合格' ? 'badge-success' : 'badge-danger'}">${item.result}</span></td>
         <td><div class="table-actions"><button class="btn btn-outline btn-sm" data-action="edit" data-id="${item.id}">编辑</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="${item.id}">删除</button></div></td>
       </tr>
@@ -131,7 +131,7 @@ productionSystem.pages = (function(store, actions, renderers, view) {
     const data = store.sync();
     renderers.stats([
       { icon: 'calendar', value: data.plans.length, label: '生产计划' },
-      { icon: 'zap', value: data.plans.filter((item) => item.status === '进行中').length, label: '进行中计划' },
+      { icon: 'bolt', value: data.plans.filter((item) => item.status === '进行中').length, label: '进行中计划' },
       { icon: 'clipboard-list', value: data.orders.filter((item) => item.status !== '已完成').length, label: '待完成订单' },
       { icon: 'alert-triangle', value: data.materials.filter((item) => item.shortage > 0).length, label: '物料短缺项' }
     ]);
@@ -397,7 +397,7 @@ productionSystem.pages = (function(store, actions, renderers, view) {
       const orders = store.sync().orders;
       renderers.stats([
         { icon: 'clipboard-list', value: orders.length, label: '订单总数' },
-        { icon: 'zap', value: orders.filter((item) => item.status === '生产中').length, label: '生产中' },
+        { icon: 'bolt', value: orders.filter((item) => item.status === '生产中').length, label: '生产中' },
         { icon: 'circle-check', value: orders.filter((item) => item.status === '已完成').length, label: '已完成' }
       ]);
       view.renderRows(tbody, list, renderOrderRow, { colspan: 8, text: '暂无生产订单' });

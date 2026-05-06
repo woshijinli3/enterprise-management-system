@@ -90,7 +90,7 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
         <td>${item.id}</td>
         <td><strong>${item.equipName}</strong></td>
         <td>${item.faultDate}</td>
-        <td style="max-width:260px;color:var(--color-text-secondary)">${item.description}</td>
+        <td class="table-cell-description">${item.description}</td>
         <td><span class="badge ${renderers.severityMap[item.severity] || 'badge-default'}">${item.severity}</span></td>
         <td>${item.handler}</td>
         <td><span class="badge ${renderers.faultStatusMap[item.status] || 'badge-default'}">${item.status}</span></td>
@@ -113,7 +113,7 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
     renderers.stats([
       { icon: 'building-factory', value: data.equipment.length, label: '设备总数' },
       { icon: 'circle-check', value: data.equipment.filter((item) => item.status === '运行中').length, label: '运行中' },
-      { icon: 'wrench', value: data.equipment.filter((item) => item.status === '维修中').length, label: '维修中' },
+      { icon: 'tool', value: data.equipment.filter((item) => item.status === '维修中').length, label: '维修中' },
       { icon: 'alert-triangle', value: data.faults.filter((item) => item.status !== '已解决').length, label: '待处理故障' }
     ]);
 
@@ -135,7 +135,7 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
       renderers.stats([
         { icon: 'building-factory', value: list.length, label: '设备总数' },
         { icon: 'circle-check', value: list.filter((item) => item.status === '运行中').length, label: '运行中' },
-        { icon: 'wrench', value: list.filter((item) => item.status === '维修中').length, label: '维修中' },
+        { icon: 'tool', value: list.filter((item) => item.status === '维修中').length, label: '维修中' },
         { icon: 'player-stop', value: list.filter((item) => item.status === '停机').length, label: '停机' }
       ]);
 
@@ -162,7 +162,8 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
 
     if (!list.length) {
       const parent = canvas.parentElement;
-      if (parent) parent.innerHTML = '<div style="text-align:center;color:var(--color-text-secondary);padding:60px 0">暂无设备数据</div>';
+      if (typeof EnterpriseCharts !== 'undefined') EnterpriseCharts.destroy(canvas);
+      if (parent) parent.innerHTML = '<div class="chart-empty">暂无设备数据</div>';
       return;
     }
 
@@ -349,8 +350,8 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
 
       renderers.stats([
         { icon: 'clipboard-list', value: list.length, label: '维护计划总数' },
-        { icon: '⏳', value: list.filter((item) => item.status === '待执行').length, label: '待执行' },
-        { icon: 'wrench', value: list.filter((item) => item.status === '进行中').length, label: '进行中' },
+        { icon: 'hourglass', value: list.filter((item) => item.status === '待执行').length, label: '待执行' },
+        { icon: 'tool', value: list.filter((item) => item.status === '进行中').length, label: '进行中' },
         { icon: 'currency-dollar', value: formatMoney(list.reduce((sum, item) => sum + item.cost, 0)), label: '预估总费用' }
       ]);
 
@@ -442,7 +443,7 @@ equipmentSystem.pages = (function(store, actions, renderers, view) {
 
       renderers.stats([
         { icon: 'alert-triangle', value: list.length, label: '故障总数' },
-        { icon: 'circle-filled', value: list.filter((item) => item.status !== '已解决').length, label: '未解决' },
+        { icon: 'circle-dot', value: list.filter((item) => item.status !== '已解决').length, label: '未解决' },
         { icon: 'bell-ringing', value: list.filter((item) => item.severity === '严重').length, label: '严重故障' }
       ]);
 
