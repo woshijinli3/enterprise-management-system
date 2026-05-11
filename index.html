@@ -8,22 +8,31 @@
   <link rel="stylesheet" href="src/assets/css/pages/loader.css">
 </head>
 <body>
+  <!--科技感网格背景-->
   <div class="loader-grid"></div>
+  <!--方便后期动态创建18个粒子-->
   <div class="loader-particles" id="particles"></div>
 
+  <!--页面左侧和右侧的装饰光源-->
   <div class="corner-light left"></div>
   <div class="corner-light right"></div>
 
+  <!--整个启动页的外层容器-->
   <div class="loader-shell" id="launchPage">
+    <!--主要展示卡片-->
     <div class="launch-card">
+      <!--① logo-->
       <div class="logo-ring">
         <img src="src/assets/images/logo.png" alt="小麦科技Logo">
       </div>
 
+      <!--② 标题-->
       <div class="loader-subtitle">XIAOMAI TECHNOLOGY</div>
       <h1 class="loader-brand">小麦科技</h1>
+      <!--打字机文本容器-->
       <p class="loader-desc typing-text" id="typingText"></p>
 
+      <!--③ 进度条-->
       <div class="progress-wrap">
         <div class="progress-text">
           <span>系统初始化中</span>
@@ -34,34 +43,53 @@
         </div>
       </div>
 
+      <!--④ 底部提示文字-->
       <div class="footer-tip">ENTERPRISE INTELLIGENCE PLATFORM</div>
     </div>
   </div>
 
   <script>
+    /*开启 JavaScript 严格模式*/
     'use strict';
 
+    /**
+     * 初始化粒子背景动画
+     * 创建18个随机位置、大小、透明度和动画参数的粒子元素
+     */
     const particlesContainer = document.getElementById('particles');
     const particleCount = 18;
 
     for (let i = 0; i < particleCount; i += 1) {
       const dot = document.createElement('span');
       dot.className = 'loader-particle';
+      /*粒子随机横向位置*/
       dot.style.left = Math.random() * 100 + 'vw';
+      /*粒子随机纵向位置：从底部外面慢慢飘上来*/
       dot.style.bottom = -20 - Math.random() * 100 + 'px';
+      /*粒子随机动画持续时长*/
       dot.style.animationDuration = 5 + Math.random() * 6 + 's';
+      /*粒子随机动画延迟*/
       dot.style.animationDelay = Math.random() * 4 + 's';
+      /*粒子随机透明度*/
       dot.style.opacity = 0.25 + Math.random() * 0.5;
+      /*粒子随机缩放比例*/
       dot.style.transform = 'scale(' + (0.6 + Math.random() * 1.2) + ')';
       particlesContainer.appendChild(dot);
     }
 
+    /**
+     * 实现进度条递增动画
+     * 在2300毫秒内从0%平滑增长到100%
+     */
     const percentEl = document.getElementById('percent');
     let current = 0;
     const totalDuration = 2300;
+    /*每 22 毫秒更新一次*/
     const interval = 22;
+    /*计算每次增加多少百分比*/
     const step = 100 / (totalDuration / interval);
 
+    /*定时器更新进度*/
     const timer = setInterval(() => {
       current += step;
       if (current >= 100) {
@@ -71,10 +99,15 @@
       percentEl.textContent = Math.floor(current) + '%';
     }, interval);
 
+    /*打字机效果*/
     const typingTextEl = document.getElementById('typingText');
     const slogan = '以智能驱动效率，以科技重塑企业运营';
     let charIndex = 0;
 
+    /**
+     * 打字机效果函数 - 逐字显示企业标语
+     * 通过递归调用实现每个字符间隔90毫秒显示
+     */
     function typeSlogan() {
       if (charIndex < slogan.length) {
         typingTextEl.textContent += slogan.charAt(charIndex);
@@ -83,19 +116,33 @@
       }
     }
 
+    /**
+     * 获取页面跳转目标地址
+     * @returns {string} 目标页面路径
+     */
     function getTargetUrl() {
       return 'src/pages/landing.html';
     }
 
+    /**
+     * 启动流程时序控制
+     * 700ms: 开始标语打字效果
+     * 2600ms: 淡出启动页面
+     * 3200ms: 跳转到目标页面
+     */
+    /*700ms开始打字*/
     setTimeout(typeSlogan, 700);
 
+    /*淡出启动页面*/
     setTimeout(() => {
       document.getElementById('launchPage').classList.add('fade-out');
     }, 2600);
 
     setTimeout(() => {
+      /*replace：一般不会返回到这个加载页*/
       window.location.replace(getTargetUrl());
     }, 3200);
   </script>
+
 </body>
 </html>
